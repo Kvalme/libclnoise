@@ -20,6 +20,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <CL/opencl.h>
 
 namespace NOISECL
 {
@@ -34,10 +35,30 @@ public:
 
     NoiseModule* createModule(const std::string &name);
     NoiseOutput* createOutput(const std::string &name);
+    void initCLContext();
     
 private:
+    friend class NoiseOutput;
     void init();
     std::map<std::string, NoiseModule*> availableModules;
+
+    cl_device_id getCLDevice()
+    {
+        return clDeviceId;
+    }
+    cl_context getCLContext()
+    {
+        return clContext;
+    }
+    cl_command_queue getCLCommandQueue()
+    {
+        return clCommands;
+    }
+    
+    cl_device_id clDeviceId;
+    cl_context clContext;
+    cl_command_queue clCommands;
+    bool isCLAllocatedInternally;
 };
 
 }

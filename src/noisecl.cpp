@@ -29,12 +29,16 @@ using namespace NOISECL;
 NoiseCL::NoiseCL()
 {
     init();
-
+    isCLAllocatedInternally = false;
 }
 
 NoiseCL::~NoiseCL()
 {
-
+    if ( isCLAllocatedInternally )
+    {
+        clReleaseCommandQueue ( clCommands );
+        clReleaseContext ( clContext );
+    }
 }
 
 void NoiseCL::init()
@@ -44,16 +48,37 @@ void NoiseCL::init()
 
 NoiseModule *NoiseCL::createModule ( const std::string &name )
 {
-    auto it = availableModules.find(name);
-    if (it == availableModules.end()) return 0;
-    if (it->second->getModuleType() == NoiseModule::BASE) return new NoiseModule(*(it->second));
+    auto it = availableModules.find ( name );
+    if ( it == availableModules.end() ) return 0;
+    if ( it->second->getModuleType() == NoiseModule::BASE ) return new NoiseModule ( * ( it->second ) );
     return 0;
 }
 
 NoiseOutput *NoiseCL::createOutput ( const std::string &name )
 {
-    auto it = availableModules.find(name);
-    if (it == availableModules.end()) return 0;
-    if (it->second->getModuleType() == NoiseModule::OUTPUT) return new NoiseOutput(*(dynamic_cast<NoiseOutput*>(it->second)));
+    auto it = availableModules.find ( name );
+    if ( it == availableModules.end() ) return 0;
+    if ( it->second->getModuleType() == NoiseModule::OUTPUT ) return new NoiseOutput ( * ( dynamic_cast<NoiseOutput *> ( it->second ) ) );
     return 0;
+}
+
+void NoiseCL::initCLContext()
+{
+    // Connect to a compute device
+    cl_int err;
+    cl_platform_id clPlatform;
+    err = clGetPlatformIDs ( 1, &clPlatform, 0 );
+    if ( err != CL_SUCCESS ) THROW ( "Failed to find a platform!" );
+
+    // Get a device of the appropriate type
+    err = clGetDeviceIDs ( clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0 );
+    if ( err != CL_SUCCESS ) THROW ( "Failed to create device group" );
+
+    // Create a compute context
+    clContext = clCreateContext ( 0, 1, &clDeviceId, NULL, NULL, &err );
+    if ( !clContext ) THROW ( "Failed to create compute context!" );
+
+    clCommands = clCreateCommandQueue ( clContext, clDeviceId, 0, &err );
+    if ( !clCommands ) THROW ( "Failed to create command queue" );
+
 }

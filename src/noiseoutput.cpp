@@ -39,5 +39,13 @@ void NoiseOutput::setImageDimension ( unsigned int w, unsigned int h )
     width = w;
     height = h;
 }
+void NoiseOutput::build()
+{
+
+}
+void NoiseOutput::getImage ( unsigned char *buf )
+{
+
+}
 
 

@@ -34,6 +34,8 @@ public:
     NoiseOutput ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl );
     virtual ~NoiseOutput();
     void setImageDimension ( unsigned int w, unsigned int h );
+    void getImage(unsigned char *buf);
+    void build();
 
 private:
     unsigned int width;

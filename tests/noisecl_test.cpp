@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "noisecl.h"
 #include <noiseclerror.h>
@@ -11,6 +12,7 @@ int main(int argc, char *argv[])
     try
     {
         NoiseCL noisecl;
+        noisecl.initCLContext();
         NoiseModule *source = noisecl.createModule("Perlin");
         NoiseOutput *output = noisecl.createOutput("PlaneMap");
         if ( !source ) THROW("Unable to create \"Perlin\" module");
@@ -21,9 +23,15 @@ int main(int argc, char *argv[])
         source->setAttribute("octaveCount", 6);
         source->setAttribute("persistence", 0.5f);
         source->setAttribute("seed", 0);
-        
+
         output->setSource(0, source);
         output->setImageDimension(1024, 1024);
+        output->build();
+        unsigned char *image = new unsigned char[1024*1024*4];
+        output->getImage(image);
+
+        std::ofstream out("output.raw", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
+        out.write((char*)image, 1024*1024*4);
         
     }
     catch(const Error &error)
