@@ -1,2 +1,2 @@
-set(noisecl_SOURCES noisemodule.cpp noisecl.cpp)
+set(noisecl_SOURCES noiseoutput.cpp noisemodule.cpp noisecl.cpp)
 add_library(noisecl SHARED ${noisecl_SOURCES})

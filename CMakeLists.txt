@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+
 project(libnoisecl)
 
 set(CMAKE_C_FLAGS_DEBUG "-fPIC -DPIC -Wall -Werror -O0 -g3 -DDEBUG")

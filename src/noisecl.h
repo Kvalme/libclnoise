@@ -23,17 +23,20 @@
 
 namespace NOISECL
 {
+
+class NoiseOutput;
 class NoiseModule;
 class NoiseCL
 {
 public:
     NoiseCL();
     ~NoiseCL();
-    void init();
 
     NoiseModule* createModule(const std::string &name);
+    NoiseOutput* createOutput(const std::string &name);
     
 private:
+    void init();
     std::map<std::string, NoiseModule*> availableModules;
 };
 

@@ -21,10 +21,11 @@
 #include <algorithm>
 
 #include "noisemodule.h"
+#include "noisecl.h"
 
 using namespace NOISECL;
 
-NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource ) :
+NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl ) :
     inputCount ( inpCount ),
     controlCount ( contCount ),
     outputCount ( outCount ),
@@ -33,7 +34,9 @@ NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCou
     attributes ( attCount ),
     inputs ( inpCount ),
     controls ( contCount ),
-    kernelSource ( 0 )
+    kernelSource ( 0 ),
+    moduleType ( BASE ),
+    noiseCl ( ncl )
 {
 }
 
@@ -98,14 +101,25 @@ void NoiseModule::setSource ( int id, NoiseModule *source )
 }
 void NoiseModule::setAttribute ( const std::string &name, int value )
 {
-    auto it = std::find_if(attributes.begin(), attributes.end(), [&](const NoiseModuleAttribute &att){ return att.getName() == name; });
-    if (it == attributes.end()) THROW(std::string("No attribute with name \"") + name + std::string("\" in module \"") + moduleName + "\"");
-    (*it).setValue(value);
+    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const NoiseModuleAttribute & att )
+    {
+        return att.getName() == name;
+    } );
+    if ( it == attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + moduleName + "\"" );
+    ( *it ).setValue ( value );
 }
 void NoiseModule::setAttribute ( const std::string &name, float value )
 {
-    auto it = std::find_if(attributes.begin(), attributes.end(), [&](const NoiseModuleAttribute &att){ return att.getName() == name; });
-    if (it == attributes.end()) THROW(std::string("No attribute with name \"") + name + std::string("\" in module \"") + moduleName + "\"");
-    (*it).setValue(value);
+    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const NoiseModuleAttribute & att )
+    {
+        return att.getName() == name;
+    } );
+    if ( it == attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + moduleName + "\"" );
+    ( *it ).setValue ( value );
 }
 
+void NoiseModule::setAttribute ( int id, const NoiseModuleAttribute &attribute )
+{
+    if ( id >= attributeCount ) THROW ( "Unable to set attribute. Too big index." );
+    attributes[id] = attribute;
+}

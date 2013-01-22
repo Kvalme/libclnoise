@@ -27,11 +27,20 @@
 namespace NOISECL
 {
 
+class NoiseCL;
+
 class NoiseModule
 {
 
 public:
-    NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource );
+
+    enum MODULE_TYPE
+    {
+        BASE = 0,
+        OUTPUT = 1,
+    };
+
+    NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl );
     virtual ~NoiseModule();
     virtual NoiseModule &operator= ( const NoiseModule &other );
 
@@ -77,7 +86,15 @@ public:
         return kernelSource;
     }
 
-private:
+    MODULE_TYPE getModuleType() const
+    {
+        return moduleType;
+    }
+
+protected:
+    void setAttribute(int id, const NoiseModuleAttribute &attribute);
+    friend class NoiseCL;
+    
     int inputCount;
     int controlCount;
     int outputCount;
@@ -89,6 +106,8 @@ private:
     std::vector<NoiseModule *> controls;
 
     const char *kernelSource;
+    MODULE_TYPE moduleType;
+    NoiseCL *noiseCl;
 };
 }
 #endif // NOISEMODULE_H
