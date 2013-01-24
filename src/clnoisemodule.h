@@ -66,7 +66,7 @@ public:
         return moduleName;
     }
 
-    const std::vector<ModuleAttribute>& getAttributes ( int id ) const
+    const std::vector<ModuleAttribute>& getAttributes ( ) const
     {
         return attributes;
     }
