@@ -17,8 +17,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef NOISEMODULEATTRIBUTE_H
-#define NOISEMODULEATTRIBUTE_H
+#pragma once
+
 
 #include <string>
 #include "clnoiseerror.h"
@@ -79,4 +79,3 @@ private:
     std::string attributeName;
 };
 }
-#endif // NOISEMODULEATTRIBUTE_H

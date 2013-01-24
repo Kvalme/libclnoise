@@ -18,8 +18,8 @@
 */
 
 
-#ifndef NOISEMODULE_H
-#define NOISEMODULE_H
+#pragma once
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -114,4 +114,3 @@ protected:
     Noise *noiseCl;
 };
 }
-#endif // NOISEMODULE_H

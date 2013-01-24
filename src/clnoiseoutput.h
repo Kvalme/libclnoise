@@ -18,9 +18,7 @@
 */
 
 
-#ifndef NOISEOUTPUT_H
-#define NOISEOUTPUT_H
-
+#pragma once
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include <CL/opencl.h>
 
@@ -29,9 +27,9 @@
 namespace CLNoise
 {
 
+
 class Output : public Module
 {
-
 public:
     Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, Noise *ncl );
     virtual ~Output();
@@ -60,5 +58,3 @@ private:
     
 };
 }
-
-#endif // NOISEOUTPUT_H
