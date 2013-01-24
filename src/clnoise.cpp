@@ -18,21 +18,21 @@
  */
 
 #include <algorithm>
-#include "noisecl.h"
-#include "noisemodule.h"
-#include "noiseoutput.h"
+#include "clnoise.h"
+#include "clnoisemodule.h"
+#include "clnoiseoutput.h"
 #include "modules/modules_headers.h"
 
-using namespace NOISECL;
+using namespace CLNoise;
 
 
-NoiseCL::NoiseCL()
+Noise::Noise()
 {
     init();
     isCLAllocatedInternally = false;
 }
 
-NoiseCL::~NoiseCL()
+Noise::~Noise()
 {
     if ( isCLAllocatedInternally )
     {
@@ -41,28 +41,28 @@ NoiseCL::~NoiseCL()
     }
 }
 
-void NoiseCL::init()
+void Noise::init()
 {
 #include "modules/modules.h"
 }
 
-NoiseModule *NoiseCL::createModule ( const std::string &name )
+Module *Noise::createModule ( const std::string &name )
 {
     auto it = availableModules.find ( name );
     if ( it == availableModules.end() ) return 0;
-    if ( it->second->getModuleType() == NoiseModule::BASE ) return new NoiseModule ( * ( it->second ) );
+    if ( it->second->getModuleType() == Module::BASE ) return new Module ( * ( it->second ) );
     return 0;
 }
 
-NoiseOutput *NoiseCL::createOutput ( const std::string &name )
+Output *Noise::createOutput ( const std::string &name )
 {
     auto it = availableModules.find ( name );
     if ( it == availableModules.end() ) return 0;
-    if ( it->second->getModuleType() == NoiseModule::OUTPUT ) return new NoiseOutput ( * ( dynamic_cast<NoiseOutput *> ( it->second ) ) );
+    if ( it->second->getModuleType() == Module::OUTPUT ) return new Output ( * ( dynamic_cast<Output *> ( it->second ) ) );
     return 0;
 }
 
-void NoiseCL::initCLContext()
+void Noise::initCLContext()
 {
     // Connect to a compute device
     cl_int err;

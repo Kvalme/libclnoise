@@ -20,12 +20,12 @@
 
 #include <algorithm>
 
-#include "noisemodule.h"
-#include "noisecl.h"
+#include "clnoisemodule.h"
+#include "clnoise.h"
 
-using namespace NOISECL;
+using namespace CLNoise;
 
-NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl ) :
+Module::Module ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, Noise *ncl ) :
     inputCount ( inpCount ),
     controlCount ( contCount ),
     outputCount ( outCount ),
@@ -40,7 +40,7 @@ NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCou
 {
 }
 
-NoiseModule::~NoiseModule()
+Module::~Module()
 {
     attributes.clear();
     inputs.clear();
@@ -48,14 +48,14 @@ NoiseModule::~NoiseModule()
     kernelSource = 0;
 }
 
-NoiseModule &NoiseModule::operator= ( const NoiseModule &other )
+Module &Module::operator= ( const Module &other )
 {
     return *this;
 }
 
-int NoiseModule::addControls ( NoiseModule *control )
+int Module::addControls ( Module *control )
 {
-    auto it = std::find_if ( controls.begin(), controls.end(), [&] ( NoiseModule * mod )
+    auto it = std::find_if ( controls.begin(), controls.end(), [&] ( Module * mod )
     {
         return mod == 0;
     } );
@@ -66,9 +66,9 @@ int NoiseModule::addControls ( NoiseModule *control )
     }
     return -1;
 }
-int NoiseModule::addSource ( NoiseModule *source )
+int Module::addSource ( Module *source )
 {
-    auto it = std::find_if ( inputs.begin(), inputs.end(), [&] ( NoiseModule * mod )
+    auto it = std::find_if ( inputs.begin(), inputs.end(), [&] ( Module * mod )
     {
         return mod == 0;
     } );
@@ -79,38 +79,38 @@ int NoiseModule::addSource ( NoiseModule *source )
     }
     return -1;
 }
-void NoiseModule::removeControl ( int id )
+void Module::removeControl ( int id )
 {
     if ( id >= controlCount ) THROW ( "Invalid index to remove" );
     controls[id] = 0;
 }
-void NoiseModule::removeSource ( int id )
+void Module::removeSource ( int id )
 {
     if ( id >= inputCount ) THROW ( "Invalid index to remove" );
     inputs[id] = 0;
 }
-void NoiseModule::setControls ( int id, NoiseModule *control )
+void Module::setControls ( int id, Module *control )
 {
     if ( id >= controlCount ) THROW ( "Invalid index to set" );
     controls[id] = control;
 }
-void NoiseModule::setSource ( int id, NoiseModule *source )
+void Module::setSource ( int id, Module *source )
 {
     if ( id >= inputCount ) THROW ( "Invalid index to set" );
     inputs[id] = source;
 }
-void NoiseModule::setAttribute ( const std::string &name, int value )
+void Module::setAttribute ( const std::string &name, int value )
 {
-    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const NoiseModuleAttribute & att )
+    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const ModuleAttribute & att )
     {
         return att.getName() == name;
     } );
     if ( it == attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + moduleName + "\"" );
     ( *it ).setValue ( value );
 }
-void NoiseModule::setAttribute ( const std::string &name, float value )
+void Module::setAttribute ( const std::string &name, float value )
 {
-    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const NoiseModuleAttribute & att )
+    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const ModuleAttribute & att )
     {
         return att.getName() == name;
     } );
@@ -118,21 +118,21 @@ void NoiseModule::setAttribute ( const std::string &name, float value )
     ( *it ).setValue ( value );
 }
 
-void NoiseModule::setAttribute ( int id, const NoiseModuleAttribute &attribute )
+void Module::setAttribute ( int id, const ModuleAttribute &attribute )
 {
     if ( id >= attributeCount ) THROW ( "Unable to set attribute. Too big index." );
     attributes[id] = attribute;
 }
 
-void NoiseModule::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
+void Module::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
 {
-    for(NoiseModule *module : inputs)
+    for(Module *module : inputs)
     {
         if(!module)THROW ("Invalid input in module " + moduleName);
         module->buildSource(functionSet, kernelCode);
     }
 
-    for(NoiseModule *control : controls)
+    for(Module *control : controls)
     {
         if(!control)THROW ("Invalid control input in module " + moduleName);
         control->buildSource(functionSet, kernelCode);
@@ -142,11 +142,11 @@ void NoiseModule::buildSource ( std::ostringstream &functionSet, std::ostringstr
 
     kernelCode<<"float "<<moduleName<<"Result = "<<moduleName<<"(pos, ";
 
-    for(NoiseModuleAttribute &att : attributes)
+    for(ModuleAttribute &att : attributes)
     {
         if(att.getName() != attributes.begin()->getName())kernelCode<<", ";
 
-        if (att.getType() == NoiseModuleAttribute::FLOAT)
+        if (att.getType() == ModuleAttribute::FLOAT)
         {
             kernelCode<<att.getFloat();
         }

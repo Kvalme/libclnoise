@@ -1,4 +1,4 @@
 [Project]
-Name=libnoisecl
+Name=libclnoise
 Manager=KDevCMakeManager
 VersionControl=kdevgit

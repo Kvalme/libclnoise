@@ -18,13 +18,13 @@
 */
 
 
-#include "noiseoutput.h"
-#include "noisecl.h"
+#include "clnoiseoutput.h"
+#include "clnoise.h"
 
-using namespace NOISECL;
+using namespace CLNoise;
 
-NoiseOutput::NoiseOutput ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl ) :
-    NoiseModule ( attCount, inpCount, 0, contCount, mName, kSource, ncl ),
+Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, Noise *ncl ) :
+    Module ( attCount, inpCount, 0, contCount, mName, kSource, ncl ),
     width ( 0 ),
     height ( 0 ),
     clProgram ( 0 ),
@@ -36,20 +36,20 @@ NoiseOutput::NoiseOutput ( int attCount, int inpCount, int contCount, const std:
     moduleType = OUTPUT;
 }
 
-NoiseOutput::~NoiseOutput()
+Output::~Output()
 {
     if ( output ) clReleaseMemObject ( output );
     if ( clProgram ) clReleaseProgram ( clProgram );
     if ( clKernel ) clReleaseKernel ( clKernel );
 }
 
-void NoiseOutput::setImageDimension ( unsigned int w, unsigned int h )
+void Output::setImageDimension ( unsigned int w, unsigned int h )
 {
     width = w;
     height = h;
 }
 
-void NoiseOutput::build()
+void Output::build()
 {
     std::ostringstream functionSet, kernelCode;
 
@@ -59,7 +59,7 @@ void NoiseOutput::build()
     kernelCode << "    int2 size = (int2)(get_global_size(0), get_global_size(1));\n";
     kernelCode << "    float2 pos = (float2)(coord.x / (float)size.x, coord.y / (float)size.y);\n";
 
-    NoiseModule *input = *inputs.begin();
+    Module *input = *inputs.begin();
     if ( !input ) THROW ( "Output module don't have input!" );
 
     input->buildSource ( functionSet, kernelCode );
@@ -74,7 +74,7 @@ void NoiseOutput::build()
     buildOpenCLKenel ( );
     isBuiled = true;
 }
-void NoiseOutput::getImage ( unsigned char *buf )
+void Output::getImage ( unsigned char *buf )
 {
     if ( !isRunned ) run();
 
@@ -88,7 +88,7 @@ void NoiseOutput::getImage ( unsigned char *buf )
     }
 }
 
-void NoiseOutput::run()
+void Output::run()
 {
     if ( !isBuiled ) build();
 
@@ -106,7 +106,7 @@ void NoiseOutput::run()
 }
 
 
-void NoiseOutput::buildOpenCLKenel ( )
+void Output::buildOpenCLKenel ( )
 {
     cl_int err;
     const char *src = buildedSource.c_str();

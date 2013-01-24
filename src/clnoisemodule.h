@@ -23,14 +23,14 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "noisemoduleattribute.h"
+#include "clnoisemoduleattribute.h"
 
-namespace NOISECL
+namespace CLNoise
 {
 
-class NoiseCL;
+class Noise;
 
-class NoiseModule
+class Module
 {
 
 public:
@@ -41,9 +41,9 @@ public:
         OUTPUT = 1,
     };
 
-    NoiseModule ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl );
-    virtual ~NoiseModule();
-    virtual NoiseModule &operator= ( const NoiseModule &other );
+    Module ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, Noise *ncl );
+    virtual ~Module();
+    virtual Module &operator= ( const Module &other );
 
     int getInputCount() const
     {
@@ -66,18 +66,18 @@ public:
         return moduleName;
     }
 
-    const std::vector<NoiseModuleAttribute>& getAttributes ( int id ) const
+    const std::vector<ModuleAttribute>& getAttributes ( int id ) const
     {
         return attributes;
     }
     void setAttribute ( const std::string &name, int value );
     void setAttribute ( const std::string &name, float value );
 
-    void setSource ( int id, NoiseModule *source );
-    void setControls ( int id, NoiseModule *control );
+    void setSource ( int id, Module *source );
+    void setControls ( int id, Module *control );
 
-    int addSource ( NoiseModule *source );
-    int addControls ( NoiseModule *control );
+    int addSource ( Module *source );
+    int addControls ( Module *control );
 
     void removeSource ( int id );
     void removeControl ( int id );
@@ -93,11 +93,11 @@ public:
     }
 
 protected:
-    void setAttribute(int id, const NoiseModuleAttribute &attribute);
+    void setAttribute(int id, const ModuleAttribute &attribute);
     void buildSource(std::ostringstream &functionSet, std::ostringstream &kernelCode);
     
-    friend class NoiseCL;
-    friend class NoiseOutput;
+    friend class Noise;
+    friend class Output;
     
     int inputCount;
     int controlCount;
@@ -105,13 +105,13 @@ protected:
     int attributeCount;
     std::string moduleName;
 
-    std::vector<NoiseModuleAttribute> attributes;
-    std::vector<NoiseModule *> inputs;
-    std::vector<NoiseModule *> controls;
+    std::vector<ModuleAttribute> attributes;
+    std::vector<Module *> inputs;
+    std::vector<Module *> controls;
 
     const char *kernelSource;
     MODULE_TYPE moduleType;
-    NoiseCL *noiseCl;
+    Noise *noiseCl;
 };
 }
 #endif // NOISEMODULE_H

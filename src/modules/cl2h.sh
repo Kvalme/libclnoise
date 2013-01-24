@@ -9,10 +9,10 @@ function processNameLine
     CurModuleName="${2}_Mod"
     if [ "$3" == "BASE" ]
     then
-        echo "NoiseModule *"$name"_Mod = new NoiseModule($5, $7, $9, ${11}, \"$2\", "$2"Src, this);" >> $SUM_OUT
+        echo "Module *"$name"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src, this);" >> $SUM_OUT
     elif [ "$3" == "OUTPUT" ]
     then
-        echo "NoiseOutput *"$name"_Mod = new NoiseOutput($5, $7, $9, \"$2\", "$2"Src, this);" >> $SUM_OUT
+        echo "Output *"$name"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src, this);" >> $SUM_OUT
     fi
 
     echo "availableModules.insert(std::make_pair(\"${2}\", ${name}_Mod));" >> $SUM_OUT
@@ -23,10 +23,10 @@ function processArgLine
 #;ARG ID TYPE NAME DEF
     if [ "$3" == "float" ]
     then
-        echo "${CurModuleName}->setAttribute($2, NoiseModuleAttribute(\"$4\", ${5}f));" >> $SUM_OUT
+        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}f));" >> $SUM_OUT
     elif [ "$3" == "int" ]
     then
-        echo "${CurModuleName}->setAttribute($2, NoiseModuleAttribute(\"$4\", ${5}));" >> $SUM_OUT
+        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}));" >> $SUM_OUT
     fi
 
 }

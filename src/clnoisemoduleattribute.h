@@ -21,11 +21,11 @@
 #define NOISEMODULEATTRIBUTE_H
 
 #include <string>
-#include "noiseclerror.h"
+#include "clnoiseerror.h"
 
-namespace NOISECL
+namespace CLNoise
 {
-class NoiseModuleAttribute
+class ModuleAttribute
 {
 public:
     enum ATTRIBUTE_TYPE
@@ -34,9 +34,9 @@ public:
         INT     = 0,
         FLOAT   = 1,
     };
-    NoiseModuleAttribute() : type ( INVALID ) {};
-    explicit NoiseModuleAttribute ( const std::string &name, int val ) : intValue ( val ), floatValue ( -1 ), type ( INT ), attributeName ( name ) {};
-    explicit NoiseModuleAttribute ( const std::string &name, float val ) : intValue ( -1 ), floatValue ( val ), type ( FLOAT ), attributeName ( name ) {};
+    ModuleAttribute() : type ( INVALID ) {};
+    explicit ModuleAttribute ( const std::string &name, int val ) : intValue ( val ), floatValue ( -1 ), type ( INT ), attributeName ( name ) {};
+    explicit ModuleAttribute ( const std::string &name, float val ) : intValue ( -1 ), floatValue ( val ), type ( FLOAT ), attributeName ( name ) {};
 
     void setValue ( int val )
     {

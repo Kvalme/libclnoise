@@ -1,28 +1,28 @@
 #include <iostream>
 #include <fstream>
 
-#include "noisecl.h"
-#include <noiseclerror.h>
-#include <noisemodule.h>
-#include <noiseoutput.h>
+#include "clnoise.h"
+#include <clnoiseerror.h>
+#include <clnoisemodule.h>
+#include <clnoiseoutput.h>
 
-using namespace NOISECL;
+using namespace CLNoise;
 int main(int argc, char *argv[])
 {
     try
     {
-        NoiseCL noisecl;
+        Noise noisecl;
         noisecl.initCLContext();
-        NoiseModule *source = noisecl.createModule("Perlin");
-        NoiseOutput *output = noisecl.createOutput("PlaneMap");
+        Module *source = noisecl.createModule("Perlin");
+        Output *output = noisecl.createOutput("PlaneMap");
         if ( !source ) THROW("Unable to create \"Perlin\" module");
         if ( !output) THROW("Unable to create \"PlaneMap\" module");
         
-/*        source->setAttribute("frequency", 1.0f);
+        source->setAttribute("frequency", 1.0f);
         source->setAttribute("lacunarity", 2.0f);
         source->setAttribute("octaveCount", 6);
         source->setAttribute("persistence", 0.5f);
-        source->setAttribute("seed", 0);*/
+        source->setAttribute("seed", 0);
 
         output->setSource(0, source);
         output->setImageDimension(1024, 1024);

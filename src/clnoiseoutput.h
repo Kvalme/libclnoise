@@ -24,18 +24,17 @@
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include <CL/opencl.h>
 
-#include "noisemodule.h"
+#include "clnoisemodule.h"
 
-namespace NOISECL
+namespace CLNoise
 {
 
-class NoiseCL;
-class NoiseOutput : public NoiseModule
+class Output : public Module
 {
 
 public:
-    NoiseOutput ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl );
-    virtual ~NoiseOutput();
+    Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, Noise *ncl );
+    virtual ~Output();
     void setImageDimension ( unsigned int w, unsigned int h );
     
     void getImage ( unsigned char *buf );

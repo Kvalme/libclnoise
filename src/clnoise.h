@@ -22,25 +22,25 @@
 #include <map>
 #include <CL/opencl.h>
 
-namespace NOISECL
+namespace CLNoise
 {
 
-class NoiseOutput;
-class NoiseModule;
-class NoiseCL
+class Output;
+class Module;
+class Noise
 {
 public:
-    NoiseCL();
-    ~NoiseCL();
+    Noise();
+    ~Noise();
 
-    NoiseModule* createModule(const std::string &name);
-    NoiseOutput* createOutput(const std::string &name);
+    Module* createModule(const std::string &name);
+    Output* createOutput(const std::string &name);
     void initCLContext();
     
 private:
-    friend class NoiseOutput;
+    friend class Output;
     void init();
-    std::map<std::string, NoiseModule*> availableModules;
+    std::map<std::string, Module*> availableModules;
 
     cl_device_id getCLDevice()
     {
