@@ -22,11 +22,12 @@
 #include <map>
 #include <CL/opencl.h>
 
+#include "clnoisemodule.h"
+
 namespace CLNoise
 {
 
 class Output;
-class Module;
 class Noise
 {
 public:
@@ -35,6 +36,7 @@ public:
 
     Module* createModule(const std::string &name);
     Output* createOutput(const std::string &name);
+    std::vector<std::string> getModulesOfType(Module::MODULE_TYPE type);
     void initCLContext();
     
 private:

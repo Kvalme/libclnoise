@@ -46,6 +46,16 @@ void Noise::init()
 #include "modules/modules.h"
 }
 
+std::vector<std::string> Noise::getModulesOfType(Module::MODULE_TYPE type)
+{
+    std::vector<std::string> modulesByType;
+    for (auto &module : availableModules)
+    {
+        if (module.second->getModuleType() == type)modulesByType.push_back(module.first);
+    }
+    return modulesByType;
+}
+
 Module *Noise::createModule ( const std::string &name )
 {
     auto it = availableModules.find ( name );
