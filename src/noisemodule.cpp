@@ -34,7 +34,7 @@ NoiseModule::NoiseModule ( int attCount, int inpCount, int outCount, int contCou
     attributes ( attCount ),
     inputs ( inpCount ),
     controls ( contCount ),
-    kernelSource ( 0 ),
+    kernelSource ( kSource ),
     moduleType ( BASE ),
     noiseCl ( ncl )
 {
@@ -122,4 +122,38 @@ void NoiseModule::setAttribute ( int id, const NoiseModuleAttribute &attribute )
 {
     if ( id >= attributeCount ) THROW ( "Unable to set attribute. Too big index." );
     attributes[id] = attribute;
+}
+
+void NoiseModule::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
+{
+    for(NoiseModule *module : inputs)
+    {
+        if(!module)THROW ("Invalid input in module " + moduleName);
+        module->buildSource(functionSet, kernelCode);
+    }
+
+    for(NoiseModule *control : controls)
+    {
+        if(!control)THROW ("Invalid control input in module " + moduleName);
+        control->buildSource(functionSet, kernelCode);
+    }
+
+    functionSet<<kernelSource<<"\n";
+
+    kernelCode<<"float "<<moduleName<<"Result = "<<moduleName<<"(pos, ";
+
+    for(NoiseModuleAttribute &att : attributes)
+    {
+        if(att.getName() != attributes.begin()->getName())kernelCode<<", ";
+
+        if (att.getType() == NoiseModuleAttribute::FLOAT)
+        {
+            kernelCode<<att.getFloat();
+        }
+        else
+        {
+            kernelCode<<att.getInt();
+        }
+    }
+    kernelCode<<");\n";
 }

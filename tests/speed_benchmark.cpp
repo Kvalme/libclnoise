@@ -155,20 +155,21 @@ void runOpenCLKernel ( int w, int h )
         double timeElapsed = openClTimer.get_elapsed_time();
         std::cout<<"OpenCL context creation and kernel build: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
 
-        size_t local[2] = {64, 1};
+        size_t local[2] = {32, 32};
         size_t global[2] = {(size_t)w, (size_t)h};
 
         err = clEnqueueNDRangeKernel ( commands, kernel, 2, NULL, global, local, 0, NULL, NULL );
         if ( err != CL_SUCCESS )
         {
+            std::cerr<<"Error:"<<err<<std::endl;
             throw std::runtime_error ( "Unable to enqueue kernel!" );
         }
-
+        
         clFinish ( commands );
         
         timeElapsed = openClTimer.get_elapsed_time();
-        std::cout<<"OpenCL kernel execution time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
-
+        std::cout<<"OpenCL kernel execution time : "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+ 
         int *colors = new int[w * h];
         if(!colors)throw std::runtime_error("Unable to allocate output buffer");
 
@@ -249,7 +250,7 @@ int main ( int argc, char **argv )
     try
     {
         runOpenCLKernel ( w, h );
-        runLibNoiseTest (w, h);
+        if(argc >= 4)runLibNoiseTest (w, h);
     }
     catch ( std::runtime_error &err )
     {

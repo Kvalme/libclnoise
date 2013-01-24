@@ -60,7 +60,7 @@ do
     		processArgLine $line
 		break
     	    else
-		echo "\"$line\"">>$outname
+		echo "\"$line\\n\"">>$outname
 		break
     	    fi
 	done

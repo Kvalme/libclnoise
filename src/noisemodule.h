@@ -22,6 +22,7 @@
 #define NOISEMODULE_H
 #include <string>
 #include <vector>
+#include <sstream>
 #include "noisemoduleattribute.h"
 
 namespace NOISECL
@@ -93,7 +94,10 @@ public:
 
 protected:
     void setAttribute(int id, const NoiseModuleAttribute &attribute);
+    void buildSource(std::ostringstream &functionSet, std::ostringstream &kernelCode);
+    
     friend class NoiseCL;
+    friend class NoiseOutput;
     
     int inputCount;
     int controlCount;

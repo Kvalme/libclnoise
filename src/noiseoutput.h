@@ -21,6 +21,9 @@
 #ifndef NOISEOUTPUT_H
 #define NOISEOUTPUT_H
 
+#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#include <CL/opencl.h>
+
 #include "noisemodule.h"
 
 namespace NOISECL
@@ -34,12 +37,28 @@ public:
     NoiseOutput ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, NoiseCL *ncl );
     virtual ~NoiseOutput();
     void setImageDimension ( unsigned int w, unsigned int h );
-    void getImage(unsigned char *buf);
+    
+    void getImage ( unsigned char *buf );
     void build();
+    void run();
+
+    std::string getBuildedSource() const { return buildedSource;}
 
 private:
+    void buildOpenCLKenel ( );
+
     unsigned int width;
     unsigned int height;
+
+    cl_program clProgram;
+    cl_kernel clKernel;
+
+    cl_mem output;
+    bool isBuiled;
+    bool isRunned;
+
+    std::string buildedSource;
+    
 };
 }
 
