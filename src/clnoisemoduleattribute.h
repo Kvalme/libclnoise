@@ -35,31 +35,64 @@ public:
         FLOAT   = 1,
     };
     ModuleAttribute() : type ( INVALID ) {};
-    explicit ModuleAttribute ( const std::string &name, int val ) : intValue ( val ), floatValue ( -1 ), type ( INT ), attributeName ( name ) {};
-    explicit ModuleAttribute ( const std::string &name, float val ) : intValue ( -1 ), floatValue ( val ), type ( FLOAT ), attributeName ( name ) {};
+    explicit ModuleAttribute ( const std::string &name, int val, int min, int max ) :
+        type ( INT ), attributeName ( name )
+    {
+        intValue[0] = val;
+        intValue[1] = min;
+        intValue[2] = max;
+        floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
+    };
+    explicit ModuleAttribute ( const std::string &name, float val, int min, int max ) :
+        type ( FLOAT ), attributeName ( name )
+    {
+        floatValue[0] = val;
+        floatValue[1] = min;
+        floatValue[2] = max;
+        intValue[0] = intValue[1] = intValue[2] = -1;
+    };
 
     void setValue ( int val )
     {
         type = INT;
-        intValue = val;
+        intValue[0] = val;
     }
 
     void setValue ( float val )
     {
         type = FLOAT;
-        floatValue = val;
+        floatValue[0] = val;
     }
-
+    int getIntMin() const
+    {
+        if ( type != INT ) THROW ( "Invalid type requested" );
+        return intValue[1];
+    }
+    int getIntMax() const
+    {
+        if ( type != INT ) THROW ( "Invalid type requested" );
+        return intValue[2];
+    }
     int getInt() const
     {
         if ( type != INT ) THROW ( "Invalid type requested" );
-        return intValue;
+        return intValue[0];
     }
 
     float getFloat() const
     {
         if ( type != FLOAT ) THROW ( "Invalid type requested" );
-        return floatValue;
+        return floatValue[0];
+    }
+    float getFloatMin() const
+    {
+        if ( type != FLOAT ) THROW ( "Invalid type requested" );
+        return floatValue[1];
+    }
+    float getFloatMax() const
+    {
+        if ( type != FLOAT ) THROW ( "Invalid type requested" );
+        return floatValue[2];
     }
 
     ATTRIBUTE_TYPE getType() const
@@ -73,8 +106,8 @@ public:
     }
 
 private:
-    int intValue;
-    float floatValue;
+    int intValue[3];
+    float floatValue[3];
     ATTRIBUTE_TYPE type;
     std::string attributeName;
 };

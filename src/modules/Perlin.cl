@@ -1,9 +1,9 @@
 ;MODULE Perlin BASE A 5 I 0 O 1 C 0
-;ARG 0 float frequency 1.0
-;ARG 1 float lacunarity 2.0
-;ARG 2 int octaveCount 6
-;ARG 3 float persistence 0.5
-;ARG 4 int seed 0
+;ARG 0 float frequency 1.0 0.01 100.0
+;ARG 1 float lacunarity 2.0 0.01 100.0
+;ARG 2 int octaveCount 6 1 30
+;ARG 3 float persistence 0.5 0.01 100.0
+;ARG 4 int seed 0 0 65535
 
 __constant int X_NOISE_GEN = 1619;
 __constant int Y_NOISE_GEN = 31337;

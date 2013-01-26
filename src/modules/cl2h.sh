@@ -23,10 +23,10 @@ function processArgLine
 #;ARG ID TYPE NAME DEF
     if [ "$3" == "float" ]
     then
-        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}f));" >> $SUM_OUT
+        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}f, ${6}f, ${7}f));" >> $SUM_OUT
     elif [ "$3" == "int" ]
     then
-        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}));" >> $SUM_OUT
+        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}, ${6}, ${7}));" >> $SUM_OUT
     fi
 
 }
