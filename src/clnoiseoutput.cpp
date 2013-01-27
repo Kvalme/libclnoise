@@ -38,6 +38,11 @@ Output::Output ( int attCount, int inpCount, int contCount, const std::string mN
 
 Output::~Output()
 {
+    freeResources();
+}
+
+void Output::freeResources()
+{
     if ( output ) clReleaseMemObject ( output );
     if ( clProgram ) clReleaseProgram ( clProgram );
     if ( clKernel ) clReleaseKernel ( clKernel );
@@ -64,7 +69,7 @@ void Output::build()
 
     input->buildSource ( functionSet, kernelCode );
 
-    kernelCode << "float input0 = "<<input->moduleName<<"Result;\n";
+    kernelCode << "float input0 = " << input->moduleName << "Result;\n";
     kernelCode << kernelSource;
     kernelCode << "}\n";
 
@@ -74,6 +79,7 @@ void Output::build()
     buildOpenCLKenel ( );
     isBuiled = true;
 }
+
 void Output::getImage ( unsigned char *buf )
 {
     if ( !isRunned ) run();
@@ -108,6 +114,11 @@ void Output::run()
 
 void Output::buildOpenCLKenel ( )
 {
+    if ( isBuiled )
+    {
+        freeResources();
+    }
+
     cl_int err;
     const char *src = buildedSource.c_str();
     clProgram = clCreateProgramWithSource ( noiseCl->getCLContext(), 1, &src, NULL, &err );

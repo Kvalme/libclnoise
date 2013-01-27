@@ -42,7 +42,8 @@ public:
     std::string getBuildedSource() const { return buildedSource;}
 
 private:
-    void buildOpenCLKenel ( );
+    void buildOpenCLKenel ();
+    void freeResources ();
 
     unsigned int width;
     unsigned int height;
