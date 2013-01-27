@@ -98,10 +98,10 @@ void Output::run()
 {
     if ( !isBuiled ) build();
 
-    size_t local[2] = {32, 32};
+//    size_t local[2] = {32, 32};
     size_t global[2] = { ( size_t ) width, ( size_t ) height};
 
-    cl_int err = clEnqueueNDRangeKernel ( noiseCl->getCLCommandQueue(), clKernel, 2, NULL, global, local, 0, NULL, NULL );
+    cl_int err = clEnqueueNDRangeKernel ( noiseCl->getCLCommandQueue(), clKernel, 2, NULL, global, 0, 0, NULL, NULL );
     if ( err != CL_SUCCESS )
     {
         THROW ( std::string ( "Unable to enqueue kernel! " ) + getCLError ( err ) );
