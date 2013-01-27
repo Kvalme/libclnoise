@@ -48,7 +48,7 @@ Module::~Module()
     kernelSource = 0;
 }
 
-Module &Module::operator= ( const Module &other )
+Module &Module::operator= ( const Module& )
 {
     return *this;
 }
