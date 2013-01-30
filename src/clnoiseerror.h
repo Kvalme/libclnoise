@@ -58,7 +58,7 @@ private:
 inline const char* getCLError(int err)
 {
 #define CASE(n) case n : return #n
-    
+
     switch(err)
     {
         CASE(CL_DEVICE_NOT_FOUND);

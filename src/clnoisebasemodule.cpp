@@ -18,44 +18,22 @@
 */
 
 
-#pragma once
-#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
-#include <CL/opencl.h>
+#include "clnoisebasemodule.h"
 
-#include "clnoisemodule.h"
+using namespace CLNoise;
 
-namespace CLNoise
+BaseModule::BaseModule ( const std::string &mName, const char *kSource ) :
+    m_kernelSource(kSource),
+    m_moduleType(NONE),
+    m_moduleName(mName)
 {
 
-
-class Output : public Module
-{
-public:
-    Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
-    virtual ~Output();
-    void setImageDimension ( unsigned int w, unsigned int h );
-
-    void getImage ( unsigned char *buf );
-    void build();
-    void run();
-
-    std::string getBuildedSource() const { return buildedSource;}
-
-private:
-    void buildOpenCLKenel ();
-    void freeResources ();
-
-    unsigned int width;
-    unsigned int height;
-
-    cl_program clProgram;
-    cl_kernel clKernel;
-
-    cl_mem output;
-    bool isBuiled;
-    bool isRunned;
-
-    std::string buildedSource;
-
-};
 }
+
+BaseModule::~BaseModule()
+{
+
+}
+
+
+

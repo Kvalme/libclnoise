@@ -21,28 +21,25 @@
 #include <string>
 #include <map>
 #include <CL/opencl.h>
-
-#include "clnoisemodule.h"
+#include "clnoisebasemodule.h"
 
 namespace CLNoise
 {
 
-class Output;
 class Noise
 {
 public:
     Noise();
     ~Noise();
 
-    Module* createModule(const std::string &name);
-    Output* createOutput(const std::string &name);
-    std::vector<std::string> getModulesOfType(Module::MODULE_TYPE type);
+    BaseModule* createModule(const std::string &name, BaseModule::MODULE_TYPE type);
+    std::vector<std::string> getModulesOfType(BaseModule::MODULE_TYPE type);
     void initCLContext();
-    
+
 private:
     friend class Output;
     void init();
-    std::map<std::string, Module*> availableModules;
+    std::map<std::string, BaseModule*> availableModules;
 
     cl_device_id getCLDevice()
     {
@@ -56,7 +53,7 @@ private:
     {
         return clCommands;
     }
-    
+
     cl_device_id clDeviceId;
     cl_context clContext;
     cl_command_queue clCommands;

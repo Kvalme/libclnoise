@@ -18,9 +18,12 @@
  */
 
 #include <algorithm>
+
 #include "clnoise.h"
 #include "clnoisemodule.h"
 #include "clnoiseoutput.h"
+#include "clfunctionmodule.h"
+
 #include "modules/modules_headers.h"
 
 using namespace CLNoise;
@@ -46,30 +49,33 @@ void Noise::init()
 #include "modules/modules.h"
 }
 
-std::vector<std::string> Noise::getModulesOfType(Module::MODULE_TYPE type)
+std::vector<std::string> Noise::getModulesOfType(BaseModule::MODULE_TYPE type)
 {
     std::vector<std::string> modulesByType;
     for (auto &module : availableModules)
     {
-        if (module.second->getModuleType() == type)modulesByType.push_back(module.first);
+        if (module.second->getType() == type)modulesByType.push_back(module.first);
     }
     return modulesByType;
 }
 
-Module *Noise::createModule ( const std::string &name )
+Module *Noise::createModule ( const std::string &name, BaseModule::MODULE_TYPE type )
 {
     auto it = availableModules.find ( name );
-    if ( it == availableModules.end() ) return 0;
-    if ( it->second->getModuleType() == Module::BASE ) return new Module ( * ( it->second ) );
-    return 0;
-}
-
-Output *Noise::createOutput ( const std::string &name )
-{
-    auto it = availableModules.find ( name );
-    if ( it == availableModules.end() ) return 0;
-    if ( it->second->getModuleType() == Module::OUTPUT ) return new Output ( * ( dynamic_cast<Output *> ( it->second ) ) );
-    return 0;
+    if ( it == availableModules.end() ) return nullptr;
+    if ( it->second->getType() == type )
+    {
+        switch (type)
+        {
+            case BaseModule::BASE:
+                return new Module ( * ( dynamic_cast<Module*> ( it->second ) ) );
+            case BaseModule::OUTPUT:
+                return new Output ( * ( dynamic_cast<Output *> ( it->second ) ) );
+            default:
+                return nullptr;
+        }
+    }
+    return nullptr;
 }
 
 void Noise::initCLContext()

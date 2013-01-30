@@ -23,8 +23,8 @@
 
 using namespace CLNoise;
 
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource, Noise *ncl ) :
-    Module ( attCount, inpCount, 0, contCount, mName, kSource, ncl ),
+Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
+    Module ( attCount, inpCount, 0, contCount, mName, kSource),
     width ( 0 ),
     height ( 0 ),
     clProgram ( 0 ),
@@ -33,7 +33,7 @@ Output::Output ( int attCount, int inpCount, int contCount, const std::string mN
     isBuiled ( false ),
     isRunned ( false )
 {
-    moduleType = OUTPUT;
+    m_moduleType = OUTPUT;
 }
 
 Output::~Output()
@@ -56,7 +56,7 @@ void Output::setImageDimension ( unsigned int w, unsigned int h )
 
 void Output::build()
 {
-    std::ostringstream functionSet, kernelCode;
+/*    std::ostringstream functionSet, kernelCode;
 
     kernelCode << "__kernel void " << moduleName << "(__write_only __global image2d_t output)\n";
     kernelCode << "{\n";
@@ -77,12 +77,12 @@ void Output::build()
     buildedSource = functionSet.str();
 
     buildOpenCLKenel ( );
-    isBuiled = true;
+    isBuiled = true;*/
 }
 
 void Output::getImage ( unsigned char *buf )
 {
-    if ( !isRunned ) run();
+/*    if ( !isRunned ) run();
 
     size_t origin[3] = {0, 0, 0};
     size_t region[3] = { ( size_t ) width, ( size_t ) height, 1};
@@ -91,12 +91,12 @@ void Output::getImage ( unsigned char *buf )
     if ( err != CL_SUCCESS )
     {
         THROW ( std::string ( "Unable to read buffer!" ) + getCLError ( err ) );
-    }
+    }*/
 }
 
 void Output::run()
 {
-    if ( !isBuiled ) build();
+/*    if ( !isBuiled ) build();
 
 //    size_t local[2] = {32, 32};
     size_t global[2] = { ( size_t ) width, ( size_t ) height};
@@ -108,13 +108,13 @@ void Output::run()
     }
 
     clFinish ( noiseCl->getCLCommandQueue() );
-    isRunned = true;
+    isRunned = true;*/
 }
 
 
 void Output::buildOpenCLKenel ( )
 {
-    if ( isBuiled )
+/*    if ( isBuiled )
     {
         freeResources();
     }
@@ -149,7 +149,7 @@ void Output::buildOpenCLKenel ( )
 
     err = clSetKernelArg ( clKernel, 0, sizeof ( cl_mem ), &output );
     if ( err != CL_SUCCESS ) THROW ( "Unable to set kernel arg" );
-
+*/
 }
 
 

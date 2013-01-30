@@ -19,141 +19,132 @@
 
 
 #include <algorithm>
-
 #include "clnoisemodule.h"
-#include "clnoise.h"
+
 
 using namespace CLNoise;
 
-Module::Module ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, Noise *ncl ) :
-    inputCount ( inpCount ),
-    controlCount ( contCount ),
-    outputCount ( outCount ),
-    attributeCount ( attCount ),
-    moduleName ( mName ),
-    attributes ( attCount ),
-    inputs ( inpCount ),
-    controls ( contCount ),
-    kernelSource ( kSource ),
-    moduleType ( BASE ),
-    noiseCl ( ncl )
+Module::Module ( int attCount, int inpCount, int outCount, int contCount, const std::string &mName, const char *kSource ) :
+    BaseModule ( mName, kSource ),
+    m_inputCount ( inpCount ),
+    m_controlCount ( contCount ),
+    m_outputCount ( outCount ),
+    m_attributeCount ( attCount ),
+    m_attributes ( attCount ),
+    m_inputs ( inpCount ),
+    m_controls ( contCount )
 {
+    m_moduleType = BASE;
 }
 
 Module::~Module()
 {
-    attributes.clear();
-    inputs.clear();
-    controls.clear();
-    kernelSource = 0;
+    m_attributes.clear();
+    m_inputs.clear();
+    m_controls.clear();
 }
 
-Module &Module::operator= ( const Module& )
+int Module::addControl ( Module *control )
 {
-    return *this;
-}
-
-int Module::addControls ( Module *control )
-{
-    auto it = std::find_if ( controls.begin(), controls.end(), [&] ( Module * mod )
+    auto it = std::find_if ( m_controls.begin(), m_controls.end(), [&] ( Module * mod )
     {
         return mod == 0;
     } );
-    if ( it != controls.end() )
+    if ( it != m_controls.end() )
     {
         *it = control;
-        return it - controls.begin();
+        return it - m_controls.begin();
     }
     return -1;
 }
-int Module::addSource ( Module *source )
+int Module::addInput ( Module *source )
 {
-    auto it = std::find_if ( inputs.begin(), inputs.end(), [&] ( Module * mod )
+    auto it = std::find_if ( m_inputs.begin(), m_inputs.end(), [&] ( Module * mod )
     {
         return mod == 0;
     } );
-    if ( it != inputs.end() )
+    if ( it != m_inputs.end() )
     {
         *it = source;
-        return it - inputs.begin();
+        return it - m_inputs.begin();
     }
     return -1;
 }
 void Module::removeControl ( int id )
 {
-    if ( id >= controlCount ) THROW ( "Invalid index to remove" );
-    controls[id] = 0;
+    if ( id >= m_controlCount ) THROW ( "Invalid index to remove" );
+    m_controls[id] = 0;
 }
-void Module::removeSource ( int id )
+void Module::removeInput ( int id )
 {
-    if ( id >= inputCount ) THROW ( "Invalid index to remove" );
-    inputs[id] = 0;
+    if ( id >= m_inputCount ) THROW ( "Invalid index to remove" );
+    m_inputs[id] = 0;
 }
-void Module::setControls ( int id, Module *control )
+void Module::setControl ( int id, Module *control )
 {
-    if ( id >= controlCount ) THROW ( "Invalid index to set" );
-    controls[id] = control;
+    if ( id >= m_controlCount ) THROW ( "Invalid index to set" );
+    m_controls[id] = control;
 }
-void Module::setSource ( int id, Module *source )
+void Module::setInput ( int id, Module *source )
 {
-    if ( id >= inputCount ) THROW ( "Invalid index to set" );
-    inputs[id] = source;
+    if ( id >= m_inputCount ) THROW ( "Invalid index to set" );
+    m_inputs[id] = source;
 }
 void Module::setAttribute ( const std::string &name, int value )
 {
-    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const ModuleAttribute & att )
+    auto it = std::find_if ( m_attributes.begin(), m_attributes.end(), [&] ( const ModuleAttribute & att )
     {
         return att.getName() == name;
     } );
-    if ( it == attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + moduleName + "\"" );
+    if ( it == m_attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + m_moduleName + "\"" );
     ( *it ).setValue ( value );
 }
 void Module::setAttribute ( const std::string &name, float value )
 {
-    auto it = std::find_if ( attributes.begin(), attributes.end(), [&] ( const ModuleAttribute & att )
+    auto it = std::find_if ( m_attributes.begin(), m_attributes.end(), [&] ( const ModuleAttribute & att )
     {
         return att.getName() == name;
     } );
-    if ( it == attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + moduleName + "\"" );
+    if ( it == m_attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + m_moduleName + "\"" );
     ( *it ).setValue ( value );
 }
 
 void Module::setAttribute ( int id, const ModuleAttribute &attribute )
 {
-    if ( id >= attributeCount ) THROW ( "Unable to set attribute. Too big index." );
-    attributes[id] = attribute;
+    if ( id >= m_attributeCount ) THROW ( "Unable to set attribute. Too big index." );
+    m_attributes[id] = attribute;
 }
 
-void Module::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
+/*void Module::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
 {
-    for(Module *module : inputs)
+for ( Module * module : inputs )
     {
-        if(!module)THROW ("Invalid input in module " + moduleName);
-        module->buildSource(functionSet, kernelCode);
+        if ( !module ) THROW ( "Invalid input in module " + moduleName );
+        module->buildSource ( functionSet, kernelCode );
     }
 
-    for(Module *control : controls)
+for ( Module * control : controls )
     {
-        if(!control)THROW ("Invalid control input in module " + moduleName);
-        control->buildSource(functionSet, kernelCode);
+        if ( !control ) THROW ( "Invalid control input in module " + moduleName );
+        control->buildSource ( functionSet, kernelCode );
     }
 
-    functionSet<<kernelSource<<"\n";
+    functionSet << kernelSource << "\n";
 
-    kernelCode<<"float "<<moduleName<<"Result = "<<moduleName<<"(pos, ";
+    kernelCode << "float " << moduleName << "Result = " << moduleName << "(pos, ";
 
-    for(ModuleAttribute &att : attributes)
+for ( ModuleAttribute & att : attributes )
     {
-        if(att.getName() != attributes.begin()->getName())kernelCode<<", ";
+        if ( att.getName() != attributes.begin()->getName() ) kernelCode << ", ";
 
-        if (att.getType() == ModuleAttribute::FLOAT)
+        if ( att.getType() == ModuleAttribute::FLOAT )
         {
-            kernelCode<<att.getFloat();
+            kernelCode << att.getFloat();
         }
         else
         {
-            kernelCode<<att.getInt();
+            kernelCode << att.getInt();
         }
     }
-    kernelCode<<");\n";
-}
+    kernelCode << ");\n";
+}*/

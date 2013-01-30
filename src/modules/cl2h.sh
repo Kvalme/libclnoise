@@ -13,9 +13,26 @@ function processNameLine
     elif [ "$3" == "OUTPUT" ]
     then
         echo "Output *"$name"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src, this);" >> $SUM_OUT
+    elif [ "$3" == "FUNCTION" ]
+    then
+	echo "Function *"$name"_Mod = new Function();" >> $SUM_OUT
     fi
+    
 
     echo "availableModules.insert(std::make_pair(\"${2}\", ${name}_Mod));" >> $SUM_OUT
+}
+
+function processProtoLine
+{
+    echo -n "${CurModuleName}->setProto(\"" >> $SUM_OUT
+    for i in $@
+    do
+        if [ "$i" != ";PROTO" ]
+        then
+	    echo -n "$i " >> $SUM_OUT
+        fi
+    done
+    echo "\");" >> $SUM_OUT
 }
 
 function processArgLine
@@ -58,6 +75,10 @@ do
     	    elif [ "$part" == ";ARG" ]
     	    then
     		processArgLine $line
+		break
+    	    elif [ "$part" == ";PROTO" ]
+	    then
+		processProtoLine $line
 		break
     	    else
 		echo "\"$line\\n\"">>$outname

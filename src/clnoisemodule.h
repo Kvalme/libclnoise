@@ -24,93 +24,65 @@
 #include <vector>
 #include <sstream>
 #include "clnoisemoduleattribute.h"
+#include "clnoisebasemodule.h"
 
 namespace CLNoise
 {
 
-class Noise;
-
-class Module
+class Module : public BaseModule
 {
 
 public:
 
-    enum MODULE_TYPE
-    {
-        BASE = 0,
-        OUTPUT = 1,
-    };
 
-    Module ( int attCount, int inpCount, int outCount, int contCount, const std::string mName, const char *kSource, Noise *ncl );
+    Module ( int attCount, int inpCount, int outCount, int contCount, const std::string &mName, const char *kSource );
     virtual ~Module();
-    virtual Module &operator= ( const Module &other );
 
     int getInputCount() const
     {
-        return inputCount;
+        return m_inputCount;
     }
     int getControlCount() const
     {
-        return controlCount;
+        return m_controlCount;
     }
     int getOutputCount() const
     {
-        return outputCount;
+        return m_outputCount;
     }
     int getAttributeCount() const
     {
-        return attributeCount;
-    }
-    const std::string &getName() const
-    {
-        return moduleName;
+        return m_attributeCount;
     }
 
     const std::vector<ModuleAttribute>& getAttributes ( ) const
     {
-        return attributes;
+        return m_attributes;
     }
+
     void setAttribute ( const std::string &name, int value );
     void setAttribute ( const std::string &name, float value );
+    void setAttribute ( int id, const ModuleAttribute &attribute );
 
-    void setSource ( int id, Module *source );
-    void setControls ( int id, Module *control );
+    void setInput ( int id, Module *source );
+    void setControl ( int id, Module *control );
 
-    int addSource ( Module *source );
-    int addControls ( Module *control );
+    int addInput ( Module *source );
+    int addControl ( Module *control );
 
-    void removeSource ( int id );
+    void removeInput ( int id );
     void removeControl ( int id );
 
-    const char *getKernelSource() const
-    {
-        return kernelSource;
-    }
-
-    MODULE_TYPE getModuleType() const
-    {
-        return moduleType;
-    }
-
 protected:
-    void setAttribute(int id, const ModuleAttribute &attribute);
-    void buildSource(std::ostringstream &functionSet, std::ostringstream &kernelCode);
-    
-    friend class Noise;
-    friend class Output;
-    
-    int inputCount;
-    int controlCount;
-    int outputCount;
-    int attributeCount;
-    std::string moduleName;
 
-    std::vector<ModuleAttribute> attributes;
-    std::vector<Module *> inputs;
-    std::vector<Module *> controls;
+    int m_inputCount;
+    int m_controlCount;
+    int m_outputCount;
+    int m_attributeCount;
 
-    const char *kernelSource;
-    MODULE_TYPE moduleType;
-    Noise *noiseCl;
+    std::vector<ModuleAttribute> m_attributes;
+    std::vector<Module *> m_inputs;
+    std::vector<Module *> m_controls;
+
 };
 }

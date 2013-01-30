@@ -142,11 +142,12 @@ void runOpenCLKernel ( int w, int h )
         kernel = clCreateKernel ( program, "testKernel", &err );
         if ( !kernel || err != CL_SUCCESS )throw std::runtime_error ( "Failed to create compute kernel!" );
 
-        _cl_image_format format;
+/*        _cl_image_format format;
         format.image_channel_data_type = CL_UNSIGNED_INT8;
-        format.image_channel_order = CL_RGBA;
+        format.image_channel_order = CL_RGBA;*/
 
-        outputImage = clCreateImage2D ( clContext, CL_MEM_WRITE_ONLY, &format, w, h, 0, NULL, &err );
+        outputImage = clCreateBuffer(clContext, CL_MEM_WRITE_ONLY, w*h*4, NULL, &err);
+//        outputImage = clCreateImage2D ( clContext, CL_MEM_WRITE_ONLY, &format, w, h, 0, NULL, &err );
         if ( err != CL_SUCCESS ) throw std::runtime_error ( "Unable to create output image" );
 
         err = clSetKernelArg ( kernel, 0, sizeof ( cl_mem ), &outputImage );
@@ -155,34 +156,31 @@ void runOpenCLKernel ( int w, int h )
         double timeElapsed = openClTimer.get_elapsed_time();
         std::cout<<"OpenCL context creation and kernel build: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
 
-        size_t local[2] = {32, 32};
+//        size_t local[2] = {32, 32};
         size_t global[2] = {(size_t)w, (size_t)h};
 
-        err = clEnqueueNDRangeKernel ( commands, kernel, 2, NULL, global, local, 0, NULL, NULL );
+        err = clEnqueueNDRangeKernel ( commands, kernel, 2, NULL, global, 0, 0, NULL, NULL );
         if ( err != CL_SUCCESS )
         {
             std::cerr<<"Error:"<<err<<std::endl;
             throw std::runtime_error ( "Unable to enqueue kernel!" );
         }
-        
+
         clFinish ( commands );
-        
+
         timeElapsed = openClTimer.get_elapsed_time();
         std::cout<<"OpenCL kernel execution time : "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
- 
+
         int *colors = new int[w * h];
         if(!colors)throw std::runtime_error("Unable to allocate output buffer");
 
-        size_t origin[3] = {0, 0, 0};
-        size_t region[3] = {(size_t)w, (size_t)h, 1};
+/*        size_t origin[3] = {0, 0, 0};
+        size_t region[3] = {(size_t)w, (size_t)h, 1};*/
 
-        err = clEnqueueReadImage ( commands, outputImage,
-                                   CL_TRUE, origin, region, 0, 0,
-                                   ( void * ) colors, 0, NULL, NULL );
-
+        err = clEnqueueReadBuffer( commands, outputImage, CL_TRUE, 0, w *h *4, (void*)colors, 0, NULL, NULL);
         if ( err != CL_SUCCESS )
         {
-            
+
             std::cerr<<"Err id:"<<err<<std::endl;
             throw std::runtime_error ( "Unable to read buffer!" );
         }
@@ -196,10 +194,10 @@ void runOpenCLKernel ( int w, int h )
         clReleaseKernel ( kernel );
         clReleaseCommandQueue ( commands );
         clReleaseContext ( clContext );
-        
+
         timeElapsed = openClTimer.get_elapsed_time();
         std::cout<<"OpenCL cleanup time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
-        
+
         timeElapsed = openClTotalTimer.get_elapsed_time();
         std::cout<<"Total time on selected device: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
     }
@@ -209,7 +207,7 @@ void runLibNoiseTest(int w, int h)
 {
 
     Time libnoiseTimer;
-    
+
     noise::module::Perlin perlin;
     perlin.SetFrequency(1.0);
     perlin.SetLacunarity(2.0);
@@ -226,7 +224,7 @@ void runLibNoiseTest(int w, int h)
         {
             double xd((double)x/(double)w);
             double yd((double)y/(double)h);
-            
+
             double val = perlin.GetValue(xd, 1.0, yd);
             int color = val * 255.;
             colors[x+y*w] = color | color<<8 | color<<16 | color<<24;
@@ -235,7 +233,7 @@ void runLibNoiseTest(int w, int h)
 
     double timeElapsed = libnoiseTimer.get_elapsed_time();
     std::cout<<"Libnoise time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
-    
+
 }
 
 int main ( int argc, char **argv )
