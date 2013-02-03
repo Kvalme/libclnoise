@@ -22,7 +22,7 @@
 #include "clnoise.h"
 #include "clnoisemodule.h"
 #include "clnoiseoutput.h"
-#include "clfunctionmodule.h"
+#include "clnoisefunction.h"
 
 #include "modules/modules_headers.h"
 
@@ -59,21 +59,13 @@ std::vector<std::string> Noise::getModulesOfType(BaseModule::MODULE_TYPE type)
     return modulesByType;
 }
 
-Module *Noise::createModule ( const std::string &name, BaseModule::MODULE_TYPE type )
+BaseModule* Noise::createModule(const std::string &name, BaseModule::MODULE_TYPE type)
 {
     auto it = availableModules.find ( name );
     if ( it == availableModules.end() ) return nullptr;
     if ( it->second->getType() == type )
     {
-        switch (type)
-        {
-            case BaseModule::BASE:
-                return new Module ( * ( dynamic_cast<Module*> ( it->second ) ) );
-            case BaseModule::OUTPUT:
-                return new Output ( * ( dynamic_cast<Output *> ( it->second ) ) );
-            default:
-                return nullptr;
-        }
+        return it->second;
     }
     return nullptr;
 }

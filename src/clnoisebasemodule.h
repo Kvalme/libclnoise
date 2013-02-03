@@ -17,8 +17,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #pragma once
+
+#include <string>
+#include <vector>
 
 namespace CLNoise
 {
@@ -35,7 +37,7 @@ public:
     };
 
     BaseModule(const std::string &mName, const char *kSource);
-    ~BaseModule();
+    virtual ~BaseModule();
 
     const std::string &getName() const
     {
@@ -52,11 +54,15 @@ public:
         return m_moduleType;
     }
 
+    virtual void addDependency(const char *dep);
+    virtual const std::vector<std::string>& getDependencyList() const;
+
 
 protected:
     const char *m_kernelSource;
     MODULE_TYPE m_moduleType;
     std::string m_moduleName;
+    std::vector<std::string> m_dependencyes;
 };
 
 }

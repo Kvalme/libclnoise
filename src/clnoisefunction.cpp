@@ -18,14 +18,19 @@
 */
 
 
-#include "clfunctionmodule.h"
+#include "clnoisefunction.h"
 
 using namespace CLNoise;
 
-FunctionModule::FunctionModule ( const std::string &mName, const char *kSource, const char *proto ) :
+Function::Function ( const std::string &mName, const char *kSource ) :
     BaseModule ( mName, kSource ),
-    m_functionProto ( proto )
+    m_functionProto(0)
 {
     m_moduleType = FUNCTION;
+}
+
+Function::~Function()
+{
+
 }
 

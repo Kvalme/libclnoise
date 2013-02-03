@@ -35,5 +35,12 @@ BaseModule::~BaseModule()
 
 }
 
+void BaseModule::addDependency ( const char *dep )
+{
+    m_dependencyes.push_back(dep);
+}
 
-
+const std::vector< std::string >& BaseModule::getDependencyList() const
+{
+    return m_dependencyes;
+}

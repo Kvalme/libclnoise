@@ -20,6 +20,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <vector>
 #include <CL/opencl.h>
 #include "clnoisebasemodule.h"
 

@@ -9,15 +9,14 @@ function processNameLine
     CurModuleName="${2}_Mod"
     if [ "$3" == "BASE" ]
     then
-        echo "Module *"$name"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src, this);" >> $SUM_OUT
+        echo "Module *"$name"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
     elif [ "$3" == "OUTPUT" ]
     then
-        echo "Output *"$name"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src, this);" >> $SUM_OUT
+        echo "Output *"$name"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src);" >> $SUM_OUT
     elif [ "$3" == "FUNCTION" ]
     then
-	echo "Function *"$name"_Mod = new Function();" >> $SUM_OUT
+	echo "Function *"$name"_Mod = new Function(\"$2\", "$2"Src);" >> $SUM_OUT
     fi
-    
 
     echo "availableModules.insert(std::make_pair(\"${2}\", ${name}_Mod));" >> $SUM_OUT
 }
@@ -48,9 +47,10 @@ function processArgLine
 
 }
 
-#function processOutputLine
-#{
-#}
+function processDepLine
+{
+    echo "${CurModuleName}->addDependency(\"${2}\");" >> $SUM_OUT;
+}
 
 >$SUM_OUT
 >$ALL_HEADERS
@@ -79,6 +79,10 @@ do
     	    elif [ "$part" == ";PROTO" ]
 	    then
 		processProtoLine $line
+		break
+    	    elif [ "$part" == ";DEP" ]
+	    then
+		processDepLine $line
 		break
     	    else
 		echo "\"$line\\n\"">>$outname
