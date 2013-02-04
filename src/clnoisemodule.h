@@ -73,6 +73,10 @@ public:
     void removeInput ( int id );
     void removeControl ( int id );
 
+    const std::vector<Module *>& getInputs() const { return m_inputs;}
+    const std::vector<Module *>& getControls() const { return m_controls;}
+    const std::vector<ModuleAttribute>& getAttributes() const { return m_attributes;}
+
 protected:
 
     int m_inputCount;

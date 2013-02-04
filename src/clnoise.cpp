@@ -23,15 +23,15 @@
 #include "clnoisemodule.h"
 #include "clnoiseoutput.h"
 #include "clnoisefunction.h"
+#include "clnoiselibrary.h"
+#include "clnoisemap.h"
 
-#include "modules/modules_headers.h"
 
 using namespace CLNoise;
 
 
 Noise::Noise()
 {
-    init();
     isCLAllocatedInternally = false;
 }
 
@@ -44,30 +44,14 @@ Noise::~Noise()
     }
 }
 
-void Noise::init()
-{
-#include "modules/modules.h"
-}
-
 std::vector<std::string> Noise::getModulesOfType(BaseModule::MODULE_TYPE type)
 {
-    std::vector<std::string> modulesByType;
-    for (auto &module : availableModules)
-    {
-        if (module.second->getType() == type)modulesByType.push_back(module.first);
-    }
-    return modulesByType;
+    return Library::getInstance().getModulesOfType(type);
 }
 
 BaseModule* Noise::createModule(const std::string &name, BaseModule::MODULE_TYPE type)
 {
-    auto it = availableModules.find ( name );
-    if ( it == availableModules.end() ) return nullptr;
-    if ( it->second->getType() == type )
-    {
-        return it->second;
-    }
-    return nullptr;
+    return Library::getInstance().createModule(name, type);
 }
 
 void Noise::initCLContext()
@@ -90,3 +74,4 @@ void Noise::initCLContext()
     if ( !clCommands ) THROW ( "Failed to create command queue" );
 
 }
+

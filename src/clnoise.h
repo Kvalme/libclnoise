@@ -23,9 +23,11 @@
 #include <vector>
 #include <CL/opencl.h>
 #include "clnoisebasemodule.h"
+#include "clnoisemap.h"
 
 namespace CLNoise
 {
+class Output;
 
 class Noise
 {
@@ -35,12 +37,11 @@ public:
 
     BaseModule* createModule(const std::string &name, BaseModule::MODULE_TYPE type);
     std::vector<std::string> getModulesOfType(BaseModule::MODULE_TYPE type);
+
     void initCLContext();
 
+
 private:
-    friend class Output;
-    void init();
-    std::map<std::string, BaseModule*> availableModules;
 
     cl_device_id getCLDevice()
     {
