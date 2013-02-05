@@ -20,23 +20,41 @@
 
 #pragma once
 #include <string>
+#include <map>
+#include <set>
+#include <vector>
 
 namespace CLNoise
 {
+
+class Module;
+class BaseModule;
 class Output;
 
 class NoiseMap
 {
 public:
-    NoiseMap();
-    ~NoiseMap();
-    void build(Output *output);
-    void updateAttributes();
+	NoiseMap();
+	~NoiseMap();
+	void build (Output *output);
+	void updateAttributes();
+
+	std::string getKernelCode() const { return kernelSource;}
 
 protected:
-    std::string kernelSource;
-    Output *buildedOutput;
+	void processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode);
+	void processDeps (CLNoise::BaseModule *module, std::string *proto, std::string *code);
+	void generateAttributes (Module *module);
+	void generateKernelCode (Module *module, std::string *kernelCode);
+	void buildCode(const std::string &proto, const std::string &code, const std::string &kernelCode);
 
+	std::string kernelSource;
+	Output *buildedOutput;
+	std::map<Module *, std::map<std::string, unsigned> > attributeMap;
+	std::set<std::string> processedDeps;
+
+	std::vector<int> intAttributes;
+	std::vector<float> floatAttributes;
 };
 
 }

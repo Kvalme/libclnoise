@@ -31,7 +31,7 @@ function processProtoLine
 	    echo -n "$i " >> $SUM_OUT
         fi
     done
-    echo "\");" >> $SUM_OUT
+    echo "\n\");" >> $SUM_OUT
 }
 
 function processArgLine

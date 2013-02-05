@@ -4,8 +4,9 @@
 ;ARG 2 int octaveCount 6 1 30
 ;ARG 3 float persistence 0.5 0.01 10.0
 ;ARG 4 int seed 0 0 65535
-;DEP 0 GradientCoherentNoise3D
-;DEP 1 MakeInt32Range
+;DEP GradientCoherentNoise3D
+;DEP MakeInt32Range
+;PROTO float Perlin(float2 pos, float freq, float lac, int octave, float pers, int seed);
 
 
 float Perlin(float2 pos, float freq, float lac, int octave, float pers, int seed)

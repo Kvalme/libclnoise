@@ -25,15 +25,20 @@ int main(int argc, char *argv[])
         source->setAttribute("seed", 0);
 
         output->setInput(0, source);
-        output->setImageDimension(1024, 1024);
-        output->build();
-        std::cout<<output->getBuildedSource()<<std::endl;
+//        output->setImageDimension(1024, 1024);
+//        output->build();
+
+	NoiseMap noiseMap;
+	noiseMap.build(output);
+	std::cout<<"Kernel source:\n"<<noiseMap.getKernelCode();
+
+/*        std::cout<<output->getBuildedSource()<<std::endl;
         unsigned char *image = new unsigned char[1024*1024*4];
         output->run();
-        output->getImage(image);
+        output->getImage(image);*/
 
-        std::ofstream out("output.raw", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
-        out.write((char*)image, 1024*1024*4);
+/*        std::ofstream out("output.raw", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
+        out.write((char*)image, 1024*1024*4);*/
 
     }
     catch(const Error &error)

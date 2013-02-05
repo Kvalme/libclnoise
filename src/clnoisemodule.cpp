@@ -24,127 +24,93 @@
 
 using namespace CLNoise;
 
-Module::Module ( int attCount, int inpCount, int outCount, int contCount, const std::string &mName, const char *kSource ) :
-    BaseModule ( mName, kSource ),
-    m_inputCount ( inpCount ),
-    m_controlCount ( contCount ),
-    m_outputCount ( outCount ),
-    m_attributeCount ( attCount ),
-    m_attributes ( attCount ),
-    m_inputs ( inpCount ),
-    m_controls ( contCount )
+Module::Module (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned contCount, const std::string &mName, const char *kSource) :
+	Function (mName, kSource),
+	m_inputCount (inpCount),
+	m_controlCount (contCount),
+	m_outputCount (outCount),
+	m_attributeCount (attCount),
+	m_attributes (attCount),
+	m_inputs (inpCount),
+	m_controls (contCount)
 {
-    m_moduleType = BASE;
+	m_moduleType = BASE;
 }
 
 Module::~Module()
 {
-    m_attributes.clear();
-    m_inputs.clear();
-    m_controls.clear();
+	m_attributes.clear();
+	m_inputs.clear();
+	m_controls.clear();
 }
 
-int Module::addControl ( Module *control )
+int Module::addControl (Module *control)
 {
-    auto it = std::find_if ( m_controls.begin(), m_controls.end(), [&] ( Module * mod )
-    {
-        return mod == 0;
-    } );
-    if ( it != m_controls.end() )
-    {
-        *it = control;
-        return it - m_controls.begin();
-    }
-    return -1;
+	auto it = std::find_if (m_controls.begin(), m_controls.end(), [&] (Module * mod)
+	{
+		return mod == 0;
+	});
+	if (it != m_controls.end())
+	{
+		*it = control;
+		return it - m_controls.begin();
+	}
+	return -1;
 }
-int Module::addInput ( Module *source )
+int Module::addInput (Module *source)
 {
-    auto it = std::find_if ( m_inputs.begin(), m_inputs.end(), [&] ( Module * mod )
-    {
-        return mod == 0;
-    } );
-    if ( it != m_inputs.end() )
-    {
-        *it = source;
-        return it - m_inputs.begin();
-    }
-    return -1;
+	auto it = std::find_if (m_inputs.begin(), m_inputs.end(), [&] (Module * mod)
+	{
+		return mod == 0;
+	});
+	if (it != m_inputs.end())
+	{
+		*it = source;
+		return it - m_inputs.begin();
+	}
+	return -1;
 }
-void Module::removeControl ( int id )
+void Module::removeControl (unsigned id)
 {
-    if ( id >= m_controlCount ) THROW ( "Invalid index to remove" );
-    m_controls[id] = 0;
+	if (id >= m_controlCount) THROW ("Invalid index to remove");
+	m_controls[id] = 0;
 }
-void Module::removeInput ( int id )
+void Module::removeInput (unsigned id)
 {
-    if ( id >= m_inputCount ) THROW ( "Invalid index to remove" );
-    m_inputs[id] = 0;
+	if (id >= m_inputCount) THROW ("Invalid index to remove");
+	m_inputs[id] = 0;
 }
-void Module::setControl ( int id, Module *control )
+void Module::setControl (unsigned id, Module *control)
 {
-    if ( id >= m_controlCount ) THROW ( "Invalid index to set" );
-    m_controls[id] = control;
+	if (id >= m_controlCount) THROW ("Invalid index to set");
+	m_controls[id] = control;
 }
-void Module::setInput ( int id, Module *source )
+void Module::setInput (unsigned id, Module *source)
 {
-    if ( id >= m_inputCount ) THROW ( "Invalid index to set" );
-    m_inputs[id] = source;
+	if (id >= m_inputCount) THROW ("Invalid index to set");
+	m_inputs[id] = source;
 }
-void Module::setAttribute ( const std::string &name, int value )
+void Module::setAttribute (const std::string &name, int value)
 {
-    auto it = std::find_if ( m_attributes.begin(), m_attributes.end(), [&] ( const ModuleAttribute & att )
-    {
-        return att.getName() == name;
-    } );
-    if ( it == m_attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + m_moduleName + "\"" );
-    ( *it ).setValue ( value );
+	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att)
+	{
+		return att.getName() == name;
+	});
+	if (it == m_attributes.end()) THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
+	(*it).setValue (value);
 }
-void Module::setAttribute ( const std::string &name, float value )
+void Module::setAttribute (const std::string &name, float value)
 {
-    auto it = std::find_if ( m_attributes.begin(), m_attributes.end(), [&] ( const ModuleAttribute & att )
-    {
-        return att.getName() == name;
-    } );
-    if ( it == m_attributes.end() ) THROW ( std::string ( "No attribute with name \"" ) + name + std::string ( "\" in module \"" ) + m_moduleName + "\"" );
-    ( *it ).setValue ( value );
-}
-
-void Module::setAttribute ( int id, const ModuleAttribute &attribute )
-{
-    if ( id >= m_attributeCount ) THROW ( "Unable to set attribute. Too big index." );
-    m_attributes[id] = attribute;
+	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att)
+	{
+		return att.getName() == name;
+	});
+	if (it == m_attributes.end()) THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
+	(*it).setValue (value);
 }
 
-/*void Module::buildSource ( std::ostringstream &functionSet, std::ostringstream &kernelCode )
+void Module::setAttribute (unsigned id, const ModuleAttribute &attribute)
 {
-for ( Module * module : inputs )
-    {
-        if ( !module ) THROW ( "Invalid input in module " + moduleName );
-        module->buildSource ( functionSet, kernelCode );
-    }
-
-for ( Module * control : controls )
-    {
-        if ( !control ) THROW ( "Invalid control input in module " + moduleName );
-        control->buildSource ( functionSet, kernelCode );
-    }
-
-    functionSet << kernelSource << "\n";
-
-    kernelCode << "float " << moduleName << "Result = " << moduleName << "(pos, ";
-
-for ( ModuleAttribute & att : attributes )
-    {
-        if ( att.getName() != attributes.begin()->getName() ) kernelCode << ", ";
-
-        if ( att.getType() == ModuleAttribute::FLOAT )
-        {
-            kernelCode << att.getFloat();
-        }
-        else
-        {
-            kernelCode << att.getInt();
-        }
-    }
-    kernelCode << ");\n";
-}*/
+	if (id >= m_attributeCount) THROW ("Unable to set attribute. Too big index.");
+	m_attributes[id] = attribute;
+}
