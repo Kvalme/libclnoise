@@ -202,7 +202,7 @@ void NoiseMap::generateAttributes (Module *module)
 
 void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 {
-	kernelCode->append(std::string("float ") + module->getName() + "Out = " + module->getName() + "( ");
+	kernelCode->append(std::string("    float ") + module->getName() + "Out = " + module->getName() + "( ");
 	std::vector<std::string> args;
 
 	//Generator module - pass position as first argument
@@ -249,7 +249,7 @@ void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 	bool isFirst = true;
 	for (auto str : args)
 	{
-		if (!isFirst) kernelCode->append(" ,");
+		if (!isFirst) kernelCode->append(", ");
 		kernelCode->append(str);
 		isFirst = false;
 	}
@@ -264,7 +264,17 @@ void NoiseMap::buildCode (const std::string &proto, const std::string &code, con
 	kernelSource.append(code);
 	kernelSource.append("\n");
 
+	kernelSource.append("__kernel void ");
+	kernelSource.append(buildedOutput->getName());
+	kernelSource.append("(__write_only __global image2d_t output)\n");
+	kernelSource.append("{\n");
+	kernelSource.append("    int2 coord = (int2)(get_global_id(0), get_global_id(1));\n");
+	kernelSource.append("    int2 size = (int2)(get_global_size(0), get_global_size(1));\n");
+	kernelSource.append("    float2 position = (float2)(coord.x / (float)size.x, coord.y / (float)size.y);\n");
 
 	kernelSource.append(kernelCode);
+	kernelSource.append("\n");
+
+	kernelSource.append("}\n");
 }
 
