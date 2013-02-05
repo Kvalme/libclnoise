@@ -142,6 +142,8 @@ void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string 
 		code->append (function->getKernelSource());
 
 		processedDeps.insert (str);
+
+		processDeps(mod, proto, code);
 	}
 }
 
