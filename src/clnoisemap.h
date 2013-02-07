@@ -24,26 +24,35 @@
 #include <set>
 #include <vector>
 
+#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#include <CL/opencl.h>
+
 namespace CLNoise
 {
 
 class Module;
 class BaseModule;
 class Output;
+class Noise;
 
 class NoiseMap
 {
 public:
-	NoiseMap();
+	NoiseMap(const Noise &noise);
 	~NoiseMap();
 	void build (Output *output);
 	void updateAttributes();
+
+	void allocateResources();
+	void buildKernel();
+	void runKernel();
+	void transferData();
 
 	std::string getKernelCode() const { return kernelSource;}
 
 protected:
 	void processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode);
-	void processDeps (CLNoise::BaseModule *module, std::string *proto, std::string *code);
+	void processDeps (BaseModule *module, std::string *proto, std::string *code);
 	void generateAttributes (Module *module);
 	void generateKernelCode (Module *module, std::string *kernelCode);
 	void buildCode(const std::string &proto, const std::string &code, const std::string &kernelCode);
@@ -55,6 +64,15 @@ protected:
 
 	std::vector<int> intAttributes;
 	std::vector<float> floatAttributes;
+
+	const Noise &clNoise;
+
+	cl_mem outputBuffer;
+	cl_mem intAttributesBuffer;
+	cl_mem floatAttributesBuffer;
+
+	cl_program clProgram;
+	cl_kernel clKernel;
 };
 
 }

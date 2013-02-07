@@ -1,6 +1,6 @@
 /*
  *    libnoisecl - procedural noise generation tool based on OpenCL library
- *    Copyright (C) 2013  Messenger of death <messengerofdeath@gmail.com>
+ *    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,50 +18,32 @@
  */
 
 #pragma once
-#include <string>
-#include <map>
-#include <vector>
 
-#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
-#include <CL/opencl.h>
+#include "time.h"
 
-#include "clnoisebasemodule.h"
-
-namespace CLNoise
-{
-class Output;
-
-class Noise
+class Timer
 {
 public:
-	Noise();
-	~Noise();
+	Timer()
+	{
+		reset();
+	}
+	~Timer(){};
+	uint64_t get_elapsed_time_us()
+	{
+		timespec tm;
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tm);
+		uint64_t curTime = tm.tv_sec * 1000000 + tm.tv_nsec / 1000;
 
-	BaseModule *createModule (const std::string &name, BaseModule::MODULE_TYPE type);
-	std::vector<std::string> getModulesOfType (BaseModule::MODULE_TYPE type);
+		return curTime - _last_access_time_;
+	}
+	void reset()
+	{
+		timespec tm;
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tm);
 
-	void initCLContext();
-
-
+		_last_access_time_ = tm.tv_sec * 1000000 + tm.tv_nsec / 1000;
+	}
 private:
-	friend class NoiseMap;
-	cl_device_id getCLDevice() const
-	{
-		return clDeviceId;
-	}
-	cl_context getCLContext() const
-	{
-		return clContext;
-	}
-	cl_command_queue getCLCommandQueue() const
-	{
-		return clCommands;
-	}
-
-	cl_device_id clDeviceId;
-	cl_context clContext;
-	cl_command_queue clCommands;
-	bool isCLAllocatedInternally;
+	uint64_t _last_access_time_;
 };
-
-}

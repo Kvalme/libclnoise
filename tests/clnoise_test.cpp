@@ -1,3 +1,22 @@
+/*
+ *    libnoisecl - procedural noise generation tool based on OpenCL library
+ *    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include <iostream>
 #include <fstream>
 
@@ -5,6 +24,8 @@
 #include <clnoiseerror.h>
 #include <clnoisemodule.h>
 #include <clnoiseoutput.h>
+#include "clnoisemap.h"
+#include "timer.h"
 
 using namespace CLNoise;
 int main(int argc, char *argv[])
@@ -25,20 +46,44 @@ int main(int argc, char *argv[])
         source->setAttribute("seed", 0);
 
         output->setInput(0, source);
-//        output->setImageDimension(1024, 1024);
-//        output->build();
+        output->setImageDimension(256, 256);
 
-	NoiseMap noiseMap;
+	NoiseMap noiseMap(noisecl);
+
+	Timer runTimer, fullTimer;
+
 	noiseMap.build(output);
-	std::cout<<"Kernel source:\n"<<noiseMap.getKernelCode();
+	uint64_t elapsed = runTimer.get_elapsed_time_us();
+	std::cout<<"Noise map building:"<<elapsed<<" us"<<std::endl;
 
-/*        std::cout<<output->getBuildedSource()<<std::endl;
-        unsigned char *image = new unsigned char[1024*1024*4];
-        output->run();
-        output->getImage(image);*/
+	runTimer.reset();
+	noiseMap.allocateResources();
+	elapsed = runTimer.get_elapsed_time_us();
+	std::cout<<"Noise map resource allocation:"<<elapsed<<" us"<<std::endl;
 
-/*        std::ofstream out("output.raw", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
-        out.write((char*)image, 1024*1024*4);*/
+	runTimer.reset();
+	noiseMap.buildKernel();
+	elapsed = runTimer.get_elapsed_time_us();
+	std::cout<<"Noise map kernel build:"<<elapsed<<" us"<<std::endl;
+
+	runTimer.reset();
+	noiseMap.runKernel();
+	elapsed = runTimer.get_elapsed_time_us();
+	std::cout<<"Noise map kernel run:"<<elapsed<<" us"<<std::endl;
+
+	runTimer.reset();
+	noiseMap.transferData();
+	elapsed = runTimer.get_elapsed_time_us();
+	std::cout<<"Noise map data transfer:"<<elapsed<<" us"<<std::endl;
+
+
+	std::ofstream out_cl("output.cl");
+	out_cl<<noiseMap.getKernelCode();
+
+        std::ofstream out("output.data", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
+	unsigned int w, h;
+	output->getImageDimension(&w, &h);
+        out.write((char*)output->getData(), w*h*4);
 
     }
     catch(const Error &error)

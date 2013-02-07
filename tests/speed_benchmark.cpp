@@ -1,5 +1,23 @@
+/*
+ *    libnoisecl - procedural noise generation tool based on OpenCL library
+ *    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include <iostream>
-#include <sys/time.h>
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,56 +25,10 @@
 #include <fcntl.h>
 
 #include "libnoise/noise.h"
+#include "timer.h"
 
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include "CL/opencl.h"
-
-class Time
-{
-public:
-    Time();
-    ~Time();
-    double get_elapsed_time();
-    double get_elapsed_time_noreset();
-    void reset();
-private:
-    uint64_t _last_access_time_;
-};
-
-Time::Time()
-{
-    timeval tv;
-    gettimeofday ( &tv, 0 );
-    _last_access_time_ = tv.tv_sec * 1000000 + tv.tv_usec;
-}
-Time::~Time()
-{
-}
-double Time::get_elapsed_time( )
-{
-    timeval tv;
-    gettimeofday ( &tv, 0 );
-    uint64_t dtime, cur_time;
-    cur_time = tv.tv_sec * 1000000 + tv.tv_usec;
-    dtime = cur_time - _last_access_time_;
-    _last_access_time_ = cur_time;
-    return ( double ) dtime / 1000000.;
-}
-double Time::get_elapsed_time_noreset( )
-{
-    timeval tv;
-    gettimeofday ( &tv, 0 );
-    uint64_t dtime, cur_time;
-    cur_time = tv.tv_sec * 1000000 + tv.tv_usec;
-    dtime = cur_time - _last_access_time_;
-    return ( double ) dtime / 1000000.;
-}
-void Time::reset()
-{
-    timeval tv;
-    gettimeofday ( &tv, 0 );
-    _last_access_time_ = tv.tv_sec * 1000000 + tv.tv_usec;
-}
 
 char *readKernelSource()
 {
@@ -76,8 +48,8 @@ char *readKernelSource()
 }
 void runOpenCLKernel ( int w, int h )
 {
-    Time openClTimer;
-    Time openClTotalTimer;
+    Timer openClTimer;
+    Timer openClTotalTimer;
 
     const char *kernelSource = readKernelSource();
 
@@ -153,8 +125,9 @@ void runOpenCLKernel ( int w, int h )
         err = clSetKernelArg ( kernel, 0, sizeof ( cl_mem ), &outputImage );
         if ( err != CL_SUCCESS ) throw std::runtime_error ( "Unable to set kernel arg" );
 
-        double timeElapsed = openClTimer.get_elapsed_time();
-        std::cout<<"OpenCL context creation and kernel build: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+	uint64_t timeElapsed = openClTimer.get_elapsed_time_us();
+	openClTimer.reset();;
+        std::cout<<"OpenCL context creation and kernel build: "<<timeElapsed<<" us"<<std::endl;
 
 //        size_t local[2] = {32, 32};
         size_t global[2] = {(size_t)w, (size_t)h};
@@ -168,8 +141,9 @@ void runOpenCLKernel ( int w, int h )
 
         clFinish ( commands );
 
-        timeElapsed = openClTimer.get_elapsed_time();
-        std::cout<<"OpenCL kernel execution time : "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+	timeElapsed = openClTimer.get_elapsed_time_us();
+	openClTimer.reset();
+        std::cout<<"OpenCL kernel execution time : "<<timeElapsed<<" us"<<std::endl;
 
         int *colors = new int[w * h];
         if(!colors)throw std::runtime_error("Unable to allocate output buffer");
@@ -185,8 +159,9 @@ void runOpenCLKernel ( int w, int h )
             throw std::runtime_error ( "Unable to read buffer!" );
         }
 
-        timeElapsed = openClTimer.get_elapsed_time();
-        std::cout<<"OpenCL data transfer to host time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+        timeElapsed = openClTimer.get_elapsed_time_us();
+	openClTimer.reset();
+        std::cout<<"OpenCL data transfer to host time: "<<timeElapsed<<" us"<<std::endl;
 
         //cleanup
         clReleaseMemObject ( outputImage );
@@ -195,18 +170,20 @@ void runOpenCLKernel ( int w, int h )
         clReleaseCommandQueue ( commands );
         clReleaseContext ( clContext );
 
-        timeElapsed = openClTimer.get_elapsed_time();
-        std::cout<<"OpenCL cleanup time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+	timeElapsed = openClTimer.get_elapsed_time_us();
+	openClTimer.reset();
+        std::cout<<"OpenCL cleanup time: "<<timeElapsed<<" us"<<std::endl;
 
-        timeElapsed = openClTotalTimer.get_elapsed_time();
-        std::cout<<"Total time on selected device: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+	timeElapsed = openClTotalTimer.get_elapsed_time_us();
+	openClTotalTimer.reset();
+        std::cout<<"Total time on selected device: "<<timeElapsed<<" us"<<std::endl;
     }
 }
 
 void runLibNoiseTest(int w, int h)
 {
 
-    Time libnoiseTimer;
+    Timer libnoiseTimer;
 
     noise::module::Perlin perlin;
     perlin.SetFrequency(1.0);
@@ -231,8 +208,8 @@ void runLibNoiseTest(int w, int h)
         }
     }
 
-    double timeElapsed = libnoiseTimer.get_elapsed_time();
-    std::cout<<"Libnoise time: "<<timeElapsed<<"s ("<<timeElapsed * 1000000.<<"us)"<<std::endl;
+    uint64_t timeElapsed = libnoiseTimer.get_elapsed_time_us();
+    std::cout<<"Libnoise time: "<<timeElapsed<<" us"<<std::endl;
 
 }
 

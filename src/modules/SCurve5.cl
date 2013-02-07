@@ -1,5 +1,5 @@
 ;MODULE SCurve5 FUNCTION
-;PROTO float SCurve5 (float a)
+;PROTO float SCurve5 (float a);
 
 float SCurve5 (float a)
 {

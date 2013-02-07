@@ -19,43 +19,33 @@
 
 
 #pragma once
-#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
-#include <CL/opencl.h>
 
 #include "clnoisemodule.h"
 
 namespace CLNoise
 {
 
+class NoiseMap;
+
 
 class Output : public Module
 {
 public:
-    Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
-    virtual ~Output();
-    void setImageDimension ( unsigned int w, unsigned int h );
+	Output (int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
+	virtual ~Output();
 
-    void getImage ( unsigned char *buf );
-    void build();
-    void run();
-
-    std::string getBuildedSource() const { return buildedSource;}
+	void setImageDimension (unsigned int w, unsigned int h);
+	void getImageDimension (unsigned int *w, unsigned int *h) const;
+	unsigned char* getData () { return data;}
 
 private:
-    void buildOpenCLKenel ();
-    void freeResources ();
 
-    unsigned int width;
-    unsigned int height;
+	friend class NoiseMap;
+	void setData(unsigned char *dat);
 
-    cl_program clProgram;
-    cl_kernel clKernel;
+	unsigned int width;
+	unsigned int height;
 
-    cl_mem output;
-    bool isBuiled;
-    bool isRunned;
-
-    std::string buildedSource;
-
+	unsigned char *data;
 };
 }
