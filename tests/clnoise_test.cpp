@@ -34,16 +34,16 @@ int main(int argc, char *argv[])
     {
         Noise noisecl;
         noisecl.initCLContext();
-        Module *source = dynamic_cast<Module*>(noisecl.createModule("Perlin", BaseModule::BASE));
+        Module *source = dynamic_cast<Module*>(noisecl.createModule("Checkerboard", BaseModule::BASE));
         Output *output = dynamic_cast<Output*>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
         if ( !source ) THROW("Unable to create \"Perlin\" module");
         if ( !output) THROW("Unable to create \"PlaneMap\" module");
 
-        source->setAttribute("frequency", 1.0f);
+/*        source->setAttribute("frequency", 1.0f);
         source->setAttribute("lacunarity", 2.0f);
         source->setAttribute("octaveCount", 6);
         source->setAttribute("persistence", 0.5f);
-        source->setAttribute("seed", 0);
+        source->setAttribute("seed", 0);*/
 
         output->setInput(0, source);
         output->setImageDimension(256, 256);
@@ -55,6 +55,9 @@ int main(int argc, char *argv[])
 	noiseMap.build(output);
 	uint64_t elapsed = runTimer.get_elapsed_time_us();
 	std::cout<<"Noise map building:"<<elapsed<<" us"<<std::endl;
+
+	std::ofstream out_cl("output.cl");
+	out_cl<<noiseMap.getKernelCode();
 
 	runTimer.reset();
 	noiseMap.allocateResources();
@@ -76,9 +79,6 @@ int main(int argc, char *argv[])
 	elapsed = runTimer.get_elapsed_time_us();
 	std::cout<<"Noise map data transfer:"<<elapsed<<" us"<<std::endl;
 
-
-	std::ofstream out_cl("output.cl");
-	out_cl<<noiseMap.getKernelCode();
 
         std::ofstream out("output.data", std::ios_base::binary|std::ios_base::out|std::ios_base::trunc);
 	unsigned int w, h;

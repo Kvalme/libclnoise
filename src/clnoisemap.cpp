@@ -301,7 +301,7 @@ void NoiseMap::buildCode (const std::string &proto, const std::string &code, con
 	kernelSource.append("{\n");
 	kernelSource.append("    int2 coord = (int2)(get_global_id(0), get_global_id(1));\n");
 	kernelSource.append("    int2 size = (int2)(get_global_size(0), get_global_size(1));\n");
-	kernelSource.append("    float2 position = (float2)(coord.x / (float)size.x, coord.y / (float)size.y);\n");
+	kernelSource.append("    float2 position = (float2)(coord.x / (float)size.x, coord.y / (float)size.y) - 0.5;\n");
 
 	kernelSource.append(kernelCode);
 	kernelSource.append("\n");
@@ -361,7 +361,7 @@ void NoiseMap::allocateResources()
 
 	if (!intAttributesBuffer)
 	{
-		intAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, intAttributes.size() * sizeof(int), NULL, &err);
+		intAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, (intAttributes.size()>0?intAttributes.size():1) * sizeof(int), NULL, &err);
 		if ( err != CL_SUCCESS ) THROW ( "Unable to create intAttributesBuffer" );
 	}
 
@@ -380,7 +380,7 @@ void NoiseMap::allocateResources()
 
 	if (!floatAttributesBuffer)
 	{
-		floatAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, floatAttributes.size() * sizeof(float), NULL, &err);
+		floatAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, (floatAttributes.size()>0?floatAttributes.size():1) * sizeof(float), NULL, &err);
 		if ( err != CL_SUCCESS ) THROW ( "Unable to create floatAttributesBuffer" );
 	}
 }
@@ -423,14 +423,19 @@ void NoiseMap::runKernel()
 
 	err = clSetKernelArg ( clKernel, 1, sizeof ( cl_mem ), &intAttributesBuffer);
 	if ( err != CL_SUCCESS ) THROW ( std::string("Unable to set kernel arg for intAttributes ") + getCLError(err) );
-	err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), intAttributesBuffer, CL_FALSE, 0, intAttributes.size() * sizeof(int), intAttributes.data(), 0, NULL, NULL);
-	if ( err != CL_SUCCESS ) THROW ( "Unable to send intAttributes to OpenCL" );
+	if (!intAttributes.empty())
+	{
+		err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), intAttributesBuffer, CL_FALSE, 0, intAttributes.size() * sizeof(int), intAttributes.data(), 0, NULL, NULL);
+		if ( err != CL_SUCCESS ) THROW ( "Unable to send intAttributes to OpenCL" );
+	}
 
 	err = clSetKernelArg ( clKernel, 2, sizeof ( cl_mem ), &floatAttributesBuffer);
 	if ( err != CL_SUCCESS ) THROW ( std::string("Unable to set kernel arg for floatAttributes ") + getCLError(err) );
-	err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), floatAttributesBuffer, CL_FALSE, 0, floatAttributes.size() * sizeof(float), floatAttributes.data(), 0, NULL, NULL);
-	if ( err != CL_SUCCESS ) THROW ( "Unable to send floatAttributes to OpenCL" );
-
+	if (!floatAttributes.empty())
+	{
+		err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), floatAttributesBuffer, CL_FALSE, 0, floatAttributes.size() * sizeof(float), floatAttributes.data(), 0, NULL, NULL);
+		if ( err != CL_SUCCESS ) THROW ( "Unable to send floatAttributes to OpenCL" );
+	}
 	//Run kernel
 	unsigned int width, height;
 	buildedOutput->getImageDimension(&width, &height);
