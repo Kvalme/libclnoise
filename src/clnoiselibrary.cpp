@@ -22,6 +22,7 @@
 #include "clnoiseoutput.h"
 #include "clnoisefunction.h"
 #include "clnoisemodule.h"
+#include "clnoisemodifier.h"
 
 
 #include "modules/modules_headers.h"

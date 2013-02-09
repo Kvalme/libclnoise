@@ -9,17 +9,42 @@ function processNameLine
     CurModuleName="${2}_Mod"
     if [ "$3" == "BASE" ]
     then
-        echo "Module *"$name"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
+        echo "Module *"${2}"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
     elif [ "$3" == "OUTPUT" ]
     then
-        echo "Output *"$name"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src);" >> $SUM_OUT
+        echo "Output *"${2}"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src);" >> $SUM_OUT
     elif [ "$3" == "FUNCTION" ]
     then
-	echo "Function *"$name"_Mod = new Function(\"$2\", "$2"Src);" >> $SUM_OUT
+	echo "Function *"${2}"_Mod = new Function(\"$2\", "$2"Src);" >> $SUM_OUT
+    elif [ "$3" == "MODIFIER" ]
+    then
+	echo "Modifier *"${2}"_Mod = new Modifier($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
     fi
 
-    echo "availableModules.insert(std::make_pair(\"${2}\", ${name}_Mod));" >> $SUM_OUT
+    echo "availableModules.insert(std::make_pair(\"${2}\", ${2}_Mod));" >> $SUM_OUT
 }
+
+function processNameLineBuiltin
+{
+#;MODULE NAME TYPE A 6 I 0 O 1 C 0
+    CurModuleName="${2}_Mod"
+    if [ "$3" == "BASE" ]
+    then
+        echo "Module *"${2}"_Mod = new Module($5, $7, $9, ${11}, \"$2\", 0);" >> $SUM_OUT
+    elif [ "$3" == "OUTPUT" ]
+    then
+        echo "Output *"${2}"_Mod = new Output($5, $7, $9, \"$2\", 0);" >> $SUM_OUT
+    elif [ "$3" == "FUNCTION" ]
+    then
+	echo "Function *"${2}"_Mod = new Function(\"$2\", 0);" >> $SUM_OUT
+    elif [ "$3" == "MODIFIER" ]
+    then
+	echo "Modifier *"${2}"_Mod = new Modifier($5, $7, $9, ${11}, \"$2\", 0);" >> $SUM_OUT
+    fi
+
+    echo "availableModules.insert(std::make_pair(\"${2}\", ${2}_Mod));" >> $SUM_OUT
+}
+
 
 function processProtoLine
 {
@@ -61,14 +86,22 @@ do
     name=`echo $a | cut -f1 -d'.'`
     outname=$name."h"
 
-    echo "#include \"$name.h\"" >> $ALL_HEADERS
-    echo "const char "$name"Src[] = " >$outname
+    if [ "$name" != "builtin" ]
+    then
+	echo "#include \"$name.h\"" >> $ALL_HEADERS
+        echo "const char "$name"Src[] = " >$outname
+    fi
+
     while IFS= read -r line
     do
 
 	for part in $line
 	do
-    	    if [ "$part" == ";MODULE" ]
+    	    if [ "$part" == ";BUILTIN_MODULE" ]
+	    then
+		processNameLineBuiltin $line
+		break
+    	    elif [ "$part" == ";MODULE" ]
 	    then
 		processNameLine $line
 		break

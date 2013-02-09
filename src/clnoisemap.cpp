@@ -25,6 +25,7 @@
 #include "clnoiselibrary.h"
 #include "clnoisemoduleattribute.h"
 #include "clnoise.h"
+#include "clnoisemodifier.h"
 
 using namespace CLNoise;
 
@@ -120,10 +121,10 @@ void NoiseMap::processModule (BaseModule *module, std::string *proto, std::strin
 	processDeps (module, proto, code);
 
 	Function *function = dynamic_cast<Function *> (module);
-	proto->append (function->getProto());
-	code->append (function->getKernelSource());
+    if (function->getProto()) proto->append (function->getProto());
+    if (function->getKernelSource()) code->append (function->getKernelSource());
 
-	if (module->getType() == BaseModule::BASE)
+	if (module->getType() == BaseModule::BASE || module->getType() == BaseModule::MODIFIER)
 	{
 		Module *baseModule = dynamic_cast<Module *> (module);
 
@@ -232,20 +233,9 @@ void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 		args.push_back("coord");
 	}
 	//Generator module - pass position as first argument
-	if(module->getInputCount() == 0)
+	if(module->getInputCount() == 0 && module->getType() == BaseModule::BASE)
 	{
 		args.push_back("position");
-	}
-	else
-	{
-		for ( auto input : module->getInputs())
-		{
-			args.push_back(input->getName() + "Out");
-		}
-	}
-	for ( auto control : module->getControls())
-	{
-		args.push_back(control->getName() + "Out");
 	}
 
 	auto attributeMapEntryIt = attributeMap.find(module);
@@ -271,7 +261,17 @@ void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 		}
 		args.push_back(value);
 	}
-
+	
+	for ( auto input : module->getInputs())
+	{
+		args.push_back(input->getName() + "Out");
+	}
+	
+	for ( auto control : module->getControls())
+	{
+		args.push_back(control->getName() + "Out");
+	}
+	
 	if (module->getType() == BaseModule::OUTPUT)
 	{
 		args.push_back("output");
@@ -401,7 +401,7 @@ void NoiseMap::buildKernel()
 		size_t len;
 		char buffer[2048];
 		clGetProgramBuildInfo ( clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, sizeof ( buffer ), buffer, &len );
-		THROW ( std::string ( "Failed to build program:\n" ) + buffer );
+        THROW ( std::string ( "Failed to build program:\n" ) + getCLError(err) + buffer );
 	}
 
 	std::string moduleName(buildedOutput->getName());

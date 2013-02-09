@@ -1,6 +1,6 @@
 /*
     libnoisecl - procedural noise generation tool based on OpenCL library
-    Copyright (C) 2013  Messenger of death <messengerofdeath@gmail.com>
+    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -17,53 +17,18 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
 
-#include <string>
-#include <vector>
+#include "clnoisemodifier.h"
 
-namespace CLNoise
+using namespace CLNoise;
+
+Modifier::Modifier(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
+	Module(attCount, inpCount, outCount, contCount, mName, kSource)
 {
+	m_moduleType = MODIFIER;
+}
 
-class BaseModule
+Modifier::~Modifier()
 {
-public:
-	enum MODULE_TYPE
-	{
-		NONE = 0,
-		BASE = 1,
-		OUTPUT = 2,
-		FUNCTION = 3,
-		MODIFIER = 4
-	};
-
-	BaseModule(const std::string &mName, const char *kSource);
-	virtual ~BaseModule();
-
-	const std::string &getName() const
-	{
-		return m_moduleName;
-	}
-
-	const char *getKernelSource() const
-	{
-		return m_kernelSource;
-	}
-
-	MODULE_TYPE getType() const
-	{
-		return m_moduleType;
-	}
-
-	virtual void addDependency(const char *dep);
-	virtual const std::vector<std::string>& getDependencyList() const;
-
-
-protected:
-	const char *m_kernelSource;
-	MODULE_TYPE m_moduleType;
-	std::string m_moduleName;
-	std::vector<std::string> m_dependencyes;
-};
 
 }
