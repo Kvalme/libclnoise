@@ -294,3 +294,22 @@ float GradientNoise3D (float fx, float fy, float fz, int ix, int iy, int iz, int
     + (yvGradient * yvPoint)
     + (zvGradient * zvPoint)) * 2.12f;
 }
+
+int IntValueNoise3D (int x, int y, int z, int seed)
+{
+  // All constants are primes and must remain prime in order for this noise
+  // function to work correctly.
+  int n = (
+      X_NOISE_GEN    * x
+    + Y_NOISE_GEN    * y
+    + Z_NOISE_GEN    * z
+    + SEED_NOISE_GEN * seed)
+    & 0x7fffffff;
+  n = (n >> 13) ^ n;
+  return (n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff;
+}
+
+float ValueNoise3D (int x, int y, int z, int seed)
+{
+  return 1.0f - ((float)IntValueNoise3D (x, y, z, seed) / 1073741824.0f);
+}
