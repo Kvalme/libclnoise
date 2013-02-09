@@ -36,12 +36,12 @@ Library::Library()
 
 }
 
-Library::Library ( const Library &other )
+Library::Library ( const Library & )
 {
 
 }
 
-Library &Library::operator= ( const Library &other )
+Library &Library::operator= ( const Library & )
 {
     return *this;
 }
