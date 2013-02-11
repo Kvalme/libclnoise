@@ -49,7 +49,15 @@ Library &Library::operator= ( const Library & )
 
 Library::~Library()
 {
-
+	for (auto it = availableModules.begin(); it != availableModules.end(); ++it)
+	{
+		if (it->second)
+		{
+			delete it->second;
+		}
+		it->second = nullptr;
+	}
+	availableModules.clear();
 }
 
 void Library::init()

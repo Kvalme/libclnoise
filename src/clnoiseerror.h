@@ -20,6 +20,7 @@
 #pragma once
 #include <string>
 #include "CL/cl.h"
+
 #define CL_THROW(reason) throw(CLNoise::Error(reason, __FILE__, __FUNCTION__, __LINE__))
 namespace CLNoise
 {

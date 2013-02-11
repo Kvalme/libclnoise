@@ -37,10 +37,11 @@ Noise::Noise()
 
 Noise::~Noise()
 {
-	if ( isCLAllocatedInternally )
+	if (isCLAllocatedInternally)
 	{
-		clReleaseCommandQueue ( clCommands );
-		clReleaseContext ( clContext );
+		clReleaseCommandQueue(clCommands);
+		clReleaseContext(clContext);
+		
 	}
 }
 
@@ -57,21 +58,21 @@ BaseModule *Noise::createModule(const std::string &name, BaseModule::MODULE_TYPE
 void Noise::initCLContext()
 {
 	// Connect to a compute device
-	cl_int err;
+	cl_int err = CL_SUCCESS;
 	cl_platform_id clPlatform;
-	err = clGetPlatformIDs ( 1, &clPlatform, 0 );
-	if ( err != CL_SUCCESS ) CL_THROW ( "Failed to find a platform!" );
+	err = clGetPlatformIDs(1, &clPlatform, 0);
+	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to find a platform!") + getCLError(err));
 
 	// Get a device of the appropriate type
-	err = clGetDeviceIDs ( clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0 );
-	if ( err != CL_SUCCESS ) CL_THROW ( "Failed to create device group" );
+	err = clGetDeviceIDs(clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0);
+	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to create device group") + getCLError(err));
 
 	// Create a compute context
-	clContext = clCreateContext ( 0, 1, &clDeviceId, NULL, NULL, &err );
-	if ( !clContext ) CL_THROW ( "Failed to create compute context!" );
+	clContext = clCreateContext(0, 1, &clDeviceId, NULL, NULL, &err);
+	if (!clContext) CL_THROW(std::string("Failed to create compute context!") + getCLError(err));
 
-	clCommands = clCreateCommandQueue ( clContext, clDeviceId, 0, &err );
-	if ( !clCommands ) CL_THROW ( "Failed to create command queue" );
+	clCommands = clCreateCommandQueue(clContext, clDeviceId, 0, &err);
+	if (!clCommands) CL_THROW(std::string("Failed to create command queue") + getCLError(err));
 
 	isCLAllocatedInternally = true;
 }
