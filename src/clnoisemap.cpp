@@ -53,13 +53,13 @@ NoiseMap::~NoiseMap()
 
 void NoiseMap::build (Output *output)
 {
-	if (!output) THROW ("Invalid output passed");
+	if (!output) CL_THROW ("Invalid output passed");
 
 	auto outputInputs = output->getInputs();
 	auto outputControls = output->getControls();
 
-	if (output->getInputCount() != outputInputs.size()) THROW ("Invalid amount of input modules in output module");
-	if (output->getControlCount() != outputControls.size()) THROW ("Invalid amount of input modules in output module");
+	if (output->getInputCount() != outputInputs.size()) CL_THROW ("Invalid amount of input modules in output module");
+	if (output->getControlCount() != outputControls.size()) CL_THROW ("Invalid amount of control modules in output module");
 
 	processedDeps.clear();
 	attributeMap.clear();
@@ -94,20 +94,20 @@ void NoiseMap::updateAttributes()
 		for (ModuleAttribute attribute : moduleIt.first->getAttributes())
 		{
 			auto attIt = moduleIt.second.find(attribute.getName());
-			if (attIt == moduleIt.second.end()) THROW (std::string("Attribute \"") + attribute.getName() + "\" not listed in attribute map.");
+			if (attIt == moduleIt.second.end()) CL_THROW (std::string("Attribute \"") + attribute.getName() + "\" not listed in attribute map.");
 
 			switch (attribute.getType())
 			{
 				case ModuleAttribute::FLOAT:
-					if (floatAttributes.size() <= attIt->second) THROW ("Attribute position is out of bounds");
+					if (floatAttributes.size() <= attIt->second) CL_THROW ("Attribute position is out of bounds");
 					floatAttributes[attIt->second] = attribute.getFloat();
 					break;
 				case ModuleAttribute::INT:
-					if (intAttributes.size() <= attIt->second) THROW ("Attribute position is out of bounds");
+					if (intAttributes.size() <= attIt->second) CL_THROW ("Attribute position is out of bounds");
 					intAttributes[attIt->second] = attribute.getInt();
 					break;
 				default:
-					THROW ("Invalid module attribute type");
+					CL_THROW ("Invalid module attribute type");
 			}
 		}
 	}
@@ -115,14 +115,14 @@ void NoiseMap::updateAttributes()
 
 void NoiseMap::processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode)
 {
-	if (!module) THROW ("Unable to process NULL module");
-	if (module->getType() == BaseModule::OUTPUT) THROW ("Impossible to have more then one Output module in noise map");
+	if (!module) CL_THROW ("Unable to process NULL module");
+	if (module->getType() == BaseModule::OUTPUT) CL_THROW ("Impossible to have more then one Output module in noise map");
 
 	processDeps (module, proto, code);
 
 	Function *function = dynamic_cast<Function *> (module);
-    if (function->getProto()) proto->append (function->getProto());
-    if (function->getKernelSource()) code->append (function->getKernelSource());
+	if (function->getProto()) proto->append (function->getProto());
+	if (function->getKernelSource()) code->append (function->getKernelSource());
 
 	if (module->getType() == BaseModule::BASE || module->getType() == BaseModule::MODIFIER)
 	{
@@ -150,8 +150,8 @@ void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string 
 		if (processedDeps.find (str) != processedDeps.end()) continue;
 
 		BaseModule *mod = Library::getInstance().getModule(str);
-		if (!mod) THROW ("Invalid dependency: " + str);
-		if (mod->getType() == BaseModule::OUTPUT) THROW ("Output module can't be set as dependency");
+		if (!mod) CL_THROW ("Invalid dependency: " + str);
+		if (mod->getType() == BaseModule::OUTPUT) CL_THROW ("Output module can't be set as dependency");
 
 		Function *function = dynamic_cast<Function *> (mod);
 		proto->append (function->getProto());
@@ -165,7 +165,7 @@ void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string 
 
 void NoiseMap::generateAttributes (Module *module)
 {
-	if (module->getType() == BaseModule::FUNCTION) THROW ("Modules of type \"Function\" can't have attributes");
+	if (module->getType() == BaseModule::FUNCTION) CL_THROW ("Modules of type \"Function\" can't have attributes");
 
 	auto attributeMapEntryIt = attributeMap.find (module);
 	if (attributeMapEntryIt == attributeMap.end())
@@ -185,15 +185,15 @@ void NoiseMap::generateAttributes (Module *module)
 			switch (attribute.getType())
 			{
 				case ModuleAttribute::FLOAT:
-					if (floatAttributes.size() <= position) THROW ("Attribute position is out of bounds");
+					if (floatAttributes.size() <= position) CL_THROW ("Attribute position is out of bounds");
 					floatAttributes[position] = attribute.getFloat();
 					break;
 				case ModuleAttribute::INT:
-					if (intAttributes.size() <= position) THROW ("Attribute position is out of bounds");
+					if (intAttributes.size() <= position) CL_THROW ("Attribute position is out of bounds");
 					intAttributes[position] = attribute.getInt();
 					break;
 				default:
-					THROW ("Unknown attribute type");
+					CL_THROW ("Unknown attribute type");
 			}
 		}
 		else
@@ -209,7 +209,7 @@ void NoiseMap::generateAttributes (Module *module)
 					intAttributes.push_back (attribute.getInt());
 					break;
 				default:
-					THROW ("Unknown attribute type");
+					CL_THROW ("Unknown attribute type");
 			}
 			attributeMapEntryIt->second.insert(std::make_pair(attribute.getName(), position));
 		}
@@ -239,12 +239,12 @@ void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 	}
 
 	auto attributeMapEntryIt = attributeMap.find(module);
-	if ( module->getAttributeCount() != 0 && attributeMapEntryIt == attributeMap.end()) THROW ("Unable to found attribute map for module");
+	if ( module->getAttributeCount() != 0 && attributeMapEntryIt == attributeMap.end()) CL_THROW ("Unable to found attribute map for module");
 
 	for ( ModuleAttribute att : module->getAttributes())
 	{
 		auto attInfoIt = attributeMapEntryIt->second.find(att.getName());
-		if(attInfoIt == attributeMapEntryIt->second.end()) THROW ("Unmapped attribute");
+		if(attInfoIt == attributeMapEntryIt->second.end()) CL_THROW ("Unmapped attribute");
 
 		char value[256];
 
@@ -257,7 +257,7 @@ void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
 				snprintf(value, 255, "intAttributes[%d]", attInfoIt->second);
 				break;
 			default:
-				THROW ("Unknown attribute type");
+				CL_THROW ("Unknown attribute type");
 		}
 		args.push_back(value);
 	}
@@ -321,10 +321,10 @@ void NoiseMap::allocateResources()
 	{
 		size_t w, h;
 		err = clGetImageInfo(outputBuffer, CL_IMAGE_WIDTH, sizeof(size_t), &w, NULL );
-		if (err != CL_SUCCESS) THROW ("Unable to query outputBuffer width");
+		if (err != CL_SUCCESS) CL_THROW ("Unable to query outputBuffer width");
 
 		err = clGetImageInfo(outputBuffer, CL_IMAGE_HEIGHT, sizeof(size_t), &h, NULL );
-		if (err != CL_SUCCESS) THROW ("Unable to query outputBuffer height");
+		if (err != CL_SUCCESS) CL_THROW ("Unable to query outputBuffer height");
 
 		if (w!=width || h != height)
 		{
@@ -340,7 +340,7 @@ void NoiseMap::allocateResources()
 		format.image_channel_order = CL_RGBA;
 
 		outputBuffer = clCreateImage2D ( context, CL_MEM_WRITE_ONLY, &format, width, height, 0, NULL, &err );
-		if ( err != CL_SUCCESS ) THROW ( "Unable to create output image" );
+		if ( err != CL_SUCCESS ) CL_THROW ( "Unable to create output image" );
 
 		unsigned char *outData = new unsigned char[width * height * 4];
 		buildedOutput->setData(outData);
@@ -350,7 +350,7 @@ void NoiseMap::allocateResources()
 	{
 		size_t size;
 		err = clGetMemObjectInfo(intAttributesBuffer, CL_MEM_SIZE, sizeof(size_t), &size, NULL);
-		if (err != CL_SUCCESS) THROW ("Unable to query intAttributesBuffer size");
+		if (err != CL_SUCCESS) CL_THROW ("Unable to query intAttributesBuffer size");
 
 		if (size != intAttributes.size() * sizeof(int))
 		{
@@ -362,14 +362,14 @@ void NoiseMap::allocateResources()
 	if (!intAttributesBuffer)
 	{
 		intAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, (intAttributes.size()>0?intAttributes.size():1) * sizeof(int), NULL, &err);
-		if ( err != CL_SUCCESS ) THROW ( "Unable to create intAttributesBuffer" );
+		if ( err != CL_SUCCESS ) CL_THROW ( "Unable to create intAttributesBuffer" );
 	}
 
 	if (floatAttributesBuffer)
 	{
 		size_t size;
 		err = clGetMemObjectInfo(floatAttributesBuffer, CL_MEM_SIZE, sizeof(size_t), &size, NULL);
-		if (err != CL_SUCCESS) THROW ("Unable to query floatAttributesBuffer size");
+		if (err != CL_SUCCESS) CL_THROW ("Unable to query floatAttributesBuffer size");
 
 		if (size != floatAttributes.size() * sizeof(float))
 		{
@@ -381,7 +381,7 @@ void NoiseMap::allocateResources()
 	if (!floatAttributesBuffer)
 	{
 		floatAttributesBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, (floatAttributes.size()>0?floatAttributes.size():1) * sizeof(float), NULL, &err);
-		if ( err != CL_SUCCESS ) THROW ( "Unable to create floatAttributesBuffer" );
+		if ( err != CL_SUCCESS ) CL_THROW ( "Unable to create floatAttributesBuffer" );
 	}
 }
 
@@ -393,7 +393,7 @@ void NoiseMap::buildKernel()
 	cl_int err;
 	const char *src = kernelSource.c_str();
 	clProgram = clCreateProgramWithSource ( clNoise.getCLContext(), 1, &src, NULL, &err );
-	if ( !clProgram ) THROW ( "Failed to create compute program!" );
+	if ( !clProgram ) CL_THROW ( "Failed to create compute program!" );
 
 	err = clBuildProgram ( clProgram, 0, NULL, NULL, NULL, NULL );
 	if ( err != CL_SUCCESS )
@@ -401,7 +401,7 @@ void NoiseMap::buildKernel()
 		size_t len;
 		char buffer[2048];
 		clGetProgramBuildInfo ( clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, sizeof ( buffer ), buffer, &len );
-        THROW ( std::string ( "Failed to build program:\n" ) + getCLError(err) + buffer );
+        CL_THROW ( std::string ( "Failed to build program:\n" ) + getCLError(err) + buffer );
 	}
 
 	std::string moduleName(buildedOutput->getName());
@@ -411,7 +411,7 @@ void NoiseMap::buildKernel()
 	if ( !clKernel || err != CL_SUCCESS )
 	{
 		if ( clKernel ) clReleaseKernel ( clKernel );
-		THROW ( std::string ( "Failed to create compute kernel!" ) + getCLError ( err ) );
+		CL_THROW ( std::string ( "Failed to create compute kernel!" ) + getCLError ( err ) );
 	}
 }
 
@@ -419,22 +419,22 @@ void NoiseMap::runKernel()
 {
 	//Set arguments
 	cl_int err = clSetKernelArg ( clKernel, 0, sizeof ( cl_mem ), &outputBuffer );
-	if ( err != CL_SUCCESS ) THROW ( "Unable to set kernel arg for output" );
+	if ( err != CL_SUCCESS ) CL_THROW ( "Unable to set kernel arg for output" );
 
 	err = clSetKernelArg ( clKernel, 1, sizeof ( cl_mem ), &intAttributesBuffer);
-	if ( err != CL_SUCCESS ) THROW ( std::string("Unable to set kernel arg for intAttributes ") + getCLError(err) );
+	if ( err != CL_SUCCESS ) CL_THROW ( std::string("Unable to set kernel arg for intAttributes ") + getCLError(err) );
 	if (!intAttributes.empty())
 	{
 		err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), intAttributesBuffer, CL_FALSE, 0, intAttributes.size() * sizeof(int), intAttributes.data(), 0, NULL, NULL);
-		if ( err != CL_SUCCESS ) THROW ( "Unable to send intAttributes to OpenCL" );
+		if ( err != CL_SUCCESS ) CL_THROW ( "Unable to send intAttributes to OpenCL" );
 	}
 
 	err = clSetKernelArg ( clKernel, 2, sizeof ( cl_mem ), &floatAttributesBuffer);
-	if ( err != CL_SUCCESS ) THROW ( std::string("Unable to set kernel arg for floatAttributes ") + getCLError(err) );
+	if ( err != CL_SUCCESS ) CL_THROW ( std::string("Unable to set kernel arg for floatAttributes ") + getCLError(err) );
 	if (!floatAttributes.empty())
 	{
 		err = clEnqueueWriteBuffer ( clNoise.getCLCommandQueue(), floatAttributesBuffer, CL_FALSE, 0, floatAttributes.size() * sizeof(float), floatAttributes.data(), 0, NULL, NULL);
-		if ( err != CL_SUCCESS ) THROW ( "Unable to send floatAttributes to OpenCL" );
+		if ( err != CL_SUCCESS ) CL_THROW ( "Unable to send floatAttributes to OpenCL" );
 	}
 	//Run kernel
 	unsigned int width, height;
@@ -445,13 +445,13 @@ void NoiseMap::runKernel()
 	err = clEnqueueNDRangeKernel ( clNoise.getCLCommandQueue(), clKernel, 2, NULL, global, 0, 0, NULL, NULL );
 	if ( err != CL_SUCCESS )
 	{
-		THROW ( std::string ( "Unable to enqueue kernel! " ) + getCLError ( err ) );
+		CL_THROW ( std::string ( "Unable to enqueue kernel! " ) + getCLError ( err ) );
 	}
 
 	err = clFlush ( clNoise.getCLCommandQueue() );
-	if ( err != CL_SUCCESS ) THROW (std::string("Error on clFlush:") + getCLError(err));
+	if ( err != CL_SUCCESS ) CL_THROW (std::string("Error on clFlush:") + getCLError(err));
 	err = clFinish ( clNoise.getCLCommandQueue() );
-	if ( err != CL_SUCCESS ) THROW (std::string("Error on clFinish:") + getCLError(err));
+	if ( err != CL_SUCCESS ) CL_THROW (std::string("Error on clFinish:") + getCLError(err));
 }
 
 void NoiseMap::transferData()
@@ -465,6 +465,6 @@ void NoiseMap::transferData()
 	cl_int err = clEnqueueReadImage ( clNoise.getCLCommandQueue(), outputBuffer, CL_TRUE, origin, region, 0, 0, buildedOutput->getData(), 0, NULL, NULL );
 	if ( err != CL_SUCCESS )
 	{
-		THROW ( std::string ( "Unable to read buffer!" ) + getCLError ( err ) );
+		CL_THROW ( std::string ( "Unable to read buffer!" ) + getCLError ( err ) );
 	}
 }

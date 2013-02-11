@@ -81,7 +81,7 @@ public:
 
 protected:
 
-	unsigned  m_inputCount;
+	unsigned m_inputCount;
 	unsigned m_controlCount;
 	unsigned m_outputCount;
 	unsigned m_attributeCount;

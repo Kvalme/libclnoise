@@ -32,46 +32,47 @@ using namespace CLNoise;
 
 Noise::Noise()
 {
-    isCLAllocatedInternally = false;
+	isCLAllocatedInternally = false;
 }
 
 Noise::~Noise()
 {
-    if ( isCLAllocatedInternally )
-    {
-        clReleaseCommandQueue ( clCommands );
-        clReleaseContext ( clContext );
-    }
+	if ( isCLAllocatedInternally )
+	{
+		clReleaseCommandQueue ( clCommands );
+		clReleaseContext ( clContext );
+	}
 }
 
 std::vector<std::string> Noise::getModulesOfType(BaseModule::MODULE_TYPE type)
 {
-    return Library::getInstance().getModulesOfType(type);
+	return Library::getInstance().getModulesOfType(type);
 }
 
-BaseModule* Noise::createModule(const std::string &name, BaseModule::MODULE_TYPE type)
+BaseModule *Noise::createModule(const std::string &name, BaseModule::MODULE_TYPE type)
 {
-    return Library::getInstance().createModule(name, type);
+	return Library::getInstance().createModule(name, type);
 }
 
 void Noise::initCLContext()
 {
-    // Connect to a compute device
-    cl_int err;
-    cl_platform_id clPlatform;
-    err = clGetPlatformIDs ( 1, &clPlatform, 0 );
-    if ( err != CL_SUCCESS ) THROW ( "Failed to find a platform!" );
+	// Connect to a compute device
+	cl_int err;
+	cl_platform_id clPlatform;
+	err = clGetPlatformIDs ( 1, &clPlatform, 0 );
+	if ( err != CL_SUCCESS ) CL_THROW ( "Failed to find a platform!" );
 
-    // Get a device of the appropriate type
-    err = clGetDeviceIDs ( clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0 );
-    if ( err != CL_SUCCESS ) THROW ( "Failed to create device group" );
+	// Get a device of the appropriate type
+	err = clGetDeviceIDs ( clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0 );
+	if ( err != CL_SUCCESS ) CL_THROW ( "Failed to create device group" );
 
-    // Create a compute context
-    clContext = clCreateContext ( 0, 1, &clDeviceId, NULL, NULL, &err );
-    if ( !clContext ) THROW ( "Failed to create compute context!" );
+	// Create a compute context
+	clContext = clCreateContext ( 0, 1, &clDeviceId, NULL, NULL, &err );
+	if ( !clContext ) CL_THROW ( "Failed to create compute context!" );
 
-    clCommands = clCreateCommandQueue ( clContext, clDeviceId, 0, &err );
-    if ( !clCommands ) THROW ( "Failed to create command queue" );
+	clCommands = clCreateCommandQueue ( clContext, clDeviceId, 0, &err );
+	if ( !clCommands ) CL_THROW ( "Failed to create command queue" );
 
+	isCLAllocatedInternally = true;
 }
 

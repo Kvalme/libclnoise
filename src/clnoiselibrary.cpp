@@ -44,7 +44,7 @@ Library::Library ( const Library & )
 
 Library &Library::operator= ( const Library & )
 {
-    return *this;
+	return *this;
 }
 
 Library::~Library()
@@ -59,29 +59,29 @@ void Library::init()
 
 BaseModule *Library::createModule ( const std::string &name, BaseModule::MODULE_TYPE type )
 {
-    auto it = availableModules.find ( name );
-    if ( it == availableModules.end() ) return nullptr;
-    if ( it->second->getType() == type )
-    {
-        return it->second;
-    }
-    return nullptr;
+	auto it = availableModules.find ( name );
+	if ( it == availableModules.end() ) return nullptr;
+	if ( it->second->getType() == type )
+	{
+		return it->second;
+	}
+	return nullptr;
 }
 
 std::vector< std::string > Library::getModulesOfType ( BaseModule::MODULE_TYPE type )
 {
-    std::vector<std::string> modulesByType;
-for ( auto & module : availableModules )
-    {
-        if ( module.second->getType() == type ) modulesByType.push_back ( module.first );
-    }
-    return modulesByType;
+	std::vector<std::string> modulesByType;
+	for ( auto & module : availableModules )
+	{
+		if ( module.second->getType() == type ) modulesByType.push_back ( module.first );
+	}
+	return modulesByType;
 }
 
 BaseModule *Library::getModule ( const std::string &name )
 {
-    auto it = availableModules.find ( name );
-    if ( it == availableModules.end() ) return nullptr;
-    return it->second;
+	auto it = availableModules.find ( name );
+	if ( it == availableModules.end() ) return nullptr;
+	return it->second;
 }
 

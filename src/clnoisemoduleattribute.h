@@ -65,33 +65,33 @@ public:
     }
     int getIntMin() const
     {
-        if ( type != INT ) THROW ( "Invalid type requested" );
+        if ( type != INT ) CL_THROW ( "Invalid type requested" );
         return intValue[1];
     }
     int getIntMax() const
     {
-        if ( type != INT ) THROW ( "Invalid type requested" );
+        if ( type != INT ) CL_THROW ( "Invalid type requested" );
         return intValue[2];
     }
     int getInt() const
     {
-        if ( type != INT ) THROW ( "Invalid type requested" );
+        if ( type != INT ) CL_THROW ( "Invalid type requested" );
         return intValue[0];
     }
 
     float getFloat() const
     {
-        if ( type != FLOAT ) THROW ( "Invalid type requested" );
+        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
         return floatValue[0];
     }
     float getFloatMin() const
     {
-        if ( type != FLOAT ) THROW ( "Invalid type requested" );
+        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
         return floatValue[1];
     }
     float getFloatMax() const
     {
-        if ( type != FLOAT ) THROW ( "Invalid type requested" );
+        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
         return floatValue[2];
     }
 

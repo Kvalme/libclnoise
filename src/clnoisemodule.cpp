@@ -72,22 +72,22 @@ int Module::addInput (Module *source)
 }
 void Module::removeControl (unsigned id)
 {
-	if (id >= m_controlCount) THROW ("Invalid index to remove");
+	if (id >= m_controlCount) CL_THROW ("Invalid index to remove");
 	m_controls[id] = 0;
 }
 void Module::removeInput (unsigned id)
 {
-	if (id >= m_inputCount) THROW ("Invalid index to remove");
+	if (id >= m_inputCount) CL_THROW ("Invalid index to remove");
 	m_inputs[id] = 0;
 }
 void Module::setControl (unsigned id, Module *control)
 {
-	if (id >= m_controlCount) THROW ("Invalid index to set");
+	if (id >= m_controlCount) CL_THROW ("Invalid index to set");
 	m_controls[id] = control;
 }
 void Module::setInput (unsigned id, Module *source)
 {
-	if (id >= m_inputCount) THROW ("Invalid index to set");
+	if (id >= m_inputCount) CL_THROW ("Invalid index to set");
 	m_inputs[id] = source;
 }
 void Module::setAttribute (const std::string &name, int value)
@@ -96,7 +96,7 @@ void Module::setAttribute (const std::string &name, int value)
 	{
 		return att.getName() == name;
 	});
-	if (it == m_attributes.end()) THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
+	if (it == m_attributes.end()) CL_THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
 	(*it).setValue (value);
 }
 void Module::setAttribute (const std::string &name, float value)
@@ -105,12 +105,12 @@ void Module::setAttribute (const std::string &name, float value)
 	{
 		return att.getName() == name;
 	});
-	if (it == m_attributes.end()) THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
+	if (it == m_attributes.end()) CL_THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
 	(*it).setValue (value);
 }
 
 void Module::setAttribute (unsigned id, const ModuleAttribute &attribute)
 {
-	if (id >= m_attributeCount) THROW ("Unable to set attribute. Too big index.");
+	if (id >= m_attributeCount) CL_THROW ("Unable to set attribute. Too big index.");
 	m_attributes[id] = attribute;
 }

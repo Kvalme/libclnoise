@@ -63,7 +63,7 @@ protected:
 	const char *m_kernelSource;
 	MODULE_TYPE m_moduleType;
 	std::string m_moduleName;
-	std::vector<std::string> m_dependencyes;
+	std::vector<std::string> m_dependencies;
 };
 
 }
