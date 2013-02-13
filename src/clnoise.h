@@ -41,6 +41,7 @@ public:
 	std::vector<std::string> getModulesOfType (BaseModule::MODULE_TYPE type);
 
 	void initCLContext();
+	void setCLDevice(cl_device_id device, cl_context contex);
 
 
 private:

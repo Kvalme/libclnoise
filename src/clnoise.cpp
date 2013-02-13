@@ -33,15 +33,17 @@ using namespace CLNoise;
 Noise::Noise()
 {
 	isCLAllocatedInternally = false;
+    clCommands = 0;
+    clDeviceId = 0;
+    clContext = 0;
 }
 
 Noise::~Noise()
 {
+	clReleaseCommandQueue(clCommands);
 	if (isCLAllocatedInternally)
 	{
-		clReleaseCommandQueue(clCommands);
 		clReleaseContext(clContext);
-		
 	}
 }
 
@@ -61,19 +63,34 @@ void Noise::initCLContext()
 	cl_int err = CL_SUCCESS;
 	cl_platform_id clPlatform;
 	err = clGetPlatformIDs(1, &clPlatform, 0);
-	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to find a platform!") + getCLError(err));
+	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to find a platform: ") + getCLError(err));
 
 	// Get a device of the appropriate type
 	err = clGetDeviceIDs(clPlatform, CL_DEVICE_TYPE_GPU , 1, &clDeviceId, 0);
-	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to create device group") + getCLError(err));
+	if (err != CL_SUCCESS) CL_THROW(std::string("Failed to create device group: ") + getCLError(err));
 
 	// Create a compute context
 	clContext = clCreateContext(0, 1, &clDeviceId, NULL, NULL, &err);
-	if (!clContext) CL_THROW(std::string("Failed to create compute context!") + getCLError(err));
+	if (!clContext) CL_THROW(std::string("Failed to create compute context: ") + getCLError(err));
 
 	clCommands = clCreateCommandQueue(clContext, clDeviceId, 0, &err);
-	if (!clCommands) CL_THROW(std::string("Failed to create command queue") + getCLError(err));
+	if (!clCommands) CL_THROW(std::string("Failed to create command queue: ") + getCLError(err));
 
 	isCLAllocatedInternally = true;
 }
 
+void Noise::setCLDevice(cl_device_id device, cl_context context)
+{
+	if (!context) CL_THROW("Invalid context passed");
+	if (!device)  CL_THROW("Invalid device passed");
+	
+	if (clCommands) clReleaseCommandQueue(clCommands);
+	if (clContext) clReleaseContext(clContext);
+	
+	clContext = context;
+	clDeviceId = device;
+
+	cl_int err = CL_SUCCESS;
+	clCommands = clCreateCommandQueue(clContext, clDeviceId, 0, &err);
+	if (!clCommands) CL_THROW(std::string("Failed to create command queue: ") + getCLError(err));
+}

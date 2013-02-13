@@ -46,10 +46,7 @@ Module::~Module()
 
 int Module::addControl (Module *control)
 {
-	auto it = std::find_if (m_controls.begin(), m_controls.end(), [&] (Module * mod)
-	{
-		return mod == 0;
-	});
+	auto it = std::find_if (m_controls.begin(), m_controls.end(), [&] (Module * mod){return mod == 0;});
 	if (it != m_controls.end())
 	{
 		*it = control;
@@ -59,10 +56,7 @@ int Module::addControl (Module *control)
 }
 int Module::addInput (Module *source)
 {
-	auto it = std::find_if (m_inputs.begin(), m_inputs.end(), [&] (Module * mod)
-	{
-		return mod == 0;
-	});
+	auto it = std::find_if (m_inputs.begin(), m_inputs.end(), [&] (Module * mod){return mod == 0;});
 	if (it != m_inputs.end())
 	{
 		*it = source;
@@ -92,19 +86,13 @@ void Module::setInput (unsigned id, Module *source)
 }
 void Module::setAttribute (const std::string &name, int value)
 {
-	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att)
-	{
-		return att.getName() == name;
-	});
+	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att){return att.getName() == name;});
 	if (it == m_attributes.end()) CL_THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
 	(*it).setValue (value);
 }
 void Module::setAttribute (const std::string &name, float value)
 {
-	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att)
-	{
-		return att.getName() == name;
-	});
+	auto it = std::find_if (m_attributes.begin(), m_attributes.end(), [&] (const ModuleAttribute & att){return att.getName() == name;});
 	if (it == m_attributes.end()) CL_THROW (std::string ("No attribute with name \"") + name + std::string ("\" in module \"") + m_moduleName + "\"");
 	(*it).setValue (value);
 }
