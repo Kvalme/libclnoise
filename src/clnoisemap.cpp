@@ -297,7 +297,7 @@ void NoiseMap::buildCode (const std::string &proto, const std::string &code, con
 
 	kernelSource.append("__kernel void ");
 	kernelSource.append(buildedOutput->getName()+"Kernel");
-	kernelSource.append("(__write_only __global image2d_t output, __read_only __global int *intAttributes, __read_only __global float *floatAttributes)\n");
+	kernelSource.append("(__write_only image2d_t output, __global __read_only int *intAttributes, __global __read_only float *floatAttributes)\n");
 	kernelSource.append("{\n");
 	kernelSource.append("    int2 coord = (int2)(get_global_id(0), get_global_id(1));\n");
 	kernelSource.append("    int2 size = (int2)(get_global_size(0), get_global_size(1));\n");

@@ -75,7 +75,7 @@ void Noise::initCLContext()
 
 	clCommands = clCreateCommandQueue(clContext, clDeviceId, 0, &err);
 	if (!clCommands) CL_THROW(std::string("Failed to create command queue: ") + getCLError(err));
-
+	
 	isCLAllocatedInternally = true;
 }
 

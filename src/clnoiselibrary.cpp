@@ -57,7 +57,6 @@ Library::~Library()
 		}
 		it->second = nullptr;
 	}
-	availableModules.clear();
 }
 
 void Library::init()
