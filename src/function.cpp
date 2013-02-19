@@ -18,29 +18,19 @@
 */
 
 
-#include "clnoisebasemodule.h"
+#include "clnoise/function.h"
 
 using namespace CLNoise;
 
-BaseModule::BaseModule ( const std::string &mName, const char *kSource ) :
-    m_kernelSource(kSource),
-    m_moduleType(NONE),
-    m_moduleName(mName)
+Function::Function ( const std::string &mName, const char *kSource ) :
+    BaseModule ( mName, kSource ),
+    m_functionProto(0)
+{
+    m_moduleType = FUNCTION;
+}
+
+Function::~Function()
 {
 
 }
 
-BaseModule::~BaseModule()
-{
-
-}
-
-void BaseModule::addDependency ( const char *dep )
-{
-    m_dependencies.push_back(dep);
-}
-
-const std::vector< std::string >& BaseModule::getDependencyList() const
-{
-    return m_dependencies;
-}

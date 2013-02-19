@@ -18,39 +18,17 @@
 */
 
 
-#pragma once
+#include "clnoise/modifier.h"
 
-#include <map>
-#include <string>
+using namespace CLNoise;
 
-#include "clnoisebasemodule.h"
+Modifier::Modifier(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
+	Module(attCount, inpCount, outCount, contCount, mName, kSource)
+{
+	m_moduleType = MODIFIER;
+}
 
-namespace CLNoise
+Modifier::~Modifier()
 {
 
-class Library
-{
-public:
-    static Library &getInstance()
-    {
-        if ( availableModules.empty() ) __instance.init();
-        return __instance;
-    }
-
-    BaseModule *createModule ( const std::string &name, BaseModule::MODULE_TYPE type );
-    std::vector<std::string> getModulesOfType(BaseModule::MODULE_TYPE type);
-
-    BaseModule *getModule(const std::string &name);
-
-private:
-    Library();
-    Library ( const Library &other );
-    ~Library();
-    virtual Library &operator= ( const Library &other );
-    void init();
-
-    static std::map<std::string, BaseModule *> availableModules;
-
-    static Library __instance;
-};
 }

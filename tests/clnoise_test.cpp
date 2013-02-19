@@ -20,11 +20,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "clnoise.h"
-#include <clnoiseerror.h>
-#include <clnoisemodule.h>
-#include <clnoiseoutput.h>
-#include "clnoisemap.h"
+#include "clnoise/noise.h"
+#include "clnoise/error.h"
+#include <clnoise/module.h>
+#include <clnoise/output.h>
+#include "clnoise/noisemap.h"
 #include "timer.h"
 
 using namespace CLNoise;

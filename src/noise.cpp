@@ -19,12 +19,13 @@
 
 #include <algorithm>
 
-#include "clnoise.h"
-#include "clnoisemodule.h"
-#include "clnoiseoutput.h"
-#include "clnoisefunction.h"
-#include "clnoiselibrary.h"
-#include "clnoisemap.h"
+#include "clnoise/noise.h"
+#include "clnoise/module.h"
+#include "clnoise/output.h"
+#include "clnoise/function.h"
+#include "clnoise/noisemap.h"
+
+#include "library.h"
 
 
 using namespace CLNoise;

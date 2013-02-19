@@ -22,8 +22,8 @@
 
 #include <string>
 #include <vector>
-#include "clnoisemoduleattribute.h"
-#include "clnoisefunction.h"
+#include "clnoise/moduleattribute.h"
+#include "clnoise/function.h"
 
 namespace CLNoise
 {

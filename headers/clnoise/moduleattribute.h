@@ -21,7 +21,7 @@
 
 
 #include <string>
-#include "clnoiseerror.h"
+#include "clnoise/error.h"
 
 namespace CLNoise
 {

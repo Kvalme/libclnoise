@@ -25,7 +25,7 @@
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include <CL/opencl.h>
 
-#include "clnoisebasemodule.h"
+#include "clnoise/basemodule.h"
 
 namespace CLNoise
 {

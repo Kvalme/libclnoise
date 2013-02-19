@@ -1,6 +1,6 @@
 /*
     libnoisecl - procedural noise generation tool based on OpenCL library
-    Copyright (C) 2013  Messenger of death <messengerofdeath@gmail.com>
+    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,19 +18,39 @@
 */
 
 
-#include "clnoisefunction.h"
+#pragma once
 
-using namespace CLNoise;
+#include <map>
+#include <string>
 
-Function::Function ( const std::string &mName, const char *kSource ) :
-    BaseModule ( mName, kSource ),
-    m_functionProto(0)
-{
-    m_moduleType = FUNCTION;
-}
+#include "clnoise/basemodule.h"
 
-Function::~Function()
+namespace CLNoise
 {
 
-}
+class Library
+{
+public:
+    static Library &getInstance()
+    {
+        if ( availableModules.empty() ) __instance.init();
+        return __instance;
+    }
 
+    BaseModule *createModule ( const std::string &name, BaseModule::MODULE_TYPE type );
+    std::vector<std::string> getModulesOfType(BaseModule::MODULE_TYPE type);
+
+    BaseModule *getModule(const std::string &name);
+
+private:
+    Library();
+    Library ( const Library &other );
+    ~Library();
+    virtual Library &operator= ( const Library &other );
+    void init();
+
+    static std::map<std::string, BaseModule *> availableModules;
+
+    static Library __instance;
+};
+}

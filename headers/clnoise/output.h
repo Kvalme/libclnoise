@@ -20,22 +20,32 @@
 
 #pragma once
 
-#include "clnoisebasemodule.h"
+#include "clnoise/module.h"
 
 namespace CLNoise
 {
 
-class Function : public BaseModule
+class NoiseMap;
+
+
+class Output : public Module
 {
 public:
-    Function(const std::string &mName, const char *kSource);
-    ~Function();
+	Output (int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
+	virtual ~Output();
 
-    void setProto(const char *proto) { m_functionProto = proto;}
-    const char* getProto() { return m_functionProto;}
+	void setImageDimension (unsigned int w, unsigned int h);
+	void getImageDimension (unsigned int *w, unsigned int *h) const;
+	unsigned char* getData () { return data;}
 
 private:
-    const char *m_functionProto;
-};
 
+	friend class NoiseMap;
+	void setData(unsigned char *dat);
+
+	unsigned int width;
+	unsigned int height;
+
+	unsigned char *data;
+};
 }

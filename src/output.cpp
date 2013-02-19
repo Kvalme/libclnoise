@@ -18,34 +18,40 @@
 */
 
 
-#pragma once
+#include "clnoise/output.h"
+#include "clnoise/noise.h"
 
-#include "clnoisemodule.h"
+using namespace CLNoise;
 
-namespace CLNoise
+Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
+    Module ( attCount, inpCount, 0, contCount, mName, kSource),
+    width ( 0 ),
+    height ( 0 ),
+    data (nullptr)
 {
-
-class NoiseMap;
-
-
-class Output : public Module
-{
-public:
-	Output (int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
-	virtual ~Output();
-
-	void setImageDimension (unsigned int w, unsigned int h);
-	void getImageDimension (unsigned int *w, unsigned int *h) const;
-	unsigned char* getData () { return data;}
-
-private:
-
-	friend class NoiseMap;
-	void setData(unsigned char *dat);
-
-	unsigned int width;
-	unsigned int height;
-
-	unsigned char *data;
-};
+    m_moduleType = OUTPUT;
 }
+
+Output::~Output()
+{
+    if(data)delete[] data;
+}
+
+void Output::setData (unsigned char *dat)
+{
+	if(data) delete[] data;
+	data = dat;
+}
+
+void Output::getImageDimension (unsigned int *w, unsigned int *h) const
+{
+	*w = width;
+	*h = height;
+}
+
+void Output::setImageDimension ( unsigned int w, unsigned int h )
+{
+    width = w;
+    height = h;
+}
+

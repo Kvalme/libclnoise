@@ -18,11 +18,12 @@
 */
 
 
-#include "clnoiselibrary.h"
-#include "clnoiseoutput.h"
-#include "clnoisefunction.h"
-#include "clnoisemodule.h"
-#include "clnoisemodifier.h"
+#include "library.h"
+
+#include "clnoise/output.h"
+#include "clnoise/function.h"
+#include "clnoise/module.h"
+#include "clnoise/modifier.h"
 
 
 #include "modules/modules_headers.h"

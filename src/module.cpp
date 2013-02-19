@@ -19,7 +19,7 @@
 
 
 #include <algorithm>
-#include "clnoisemodule.h"
+#include "clnoise/module.h"
 
 
 using namespace CLNoise;

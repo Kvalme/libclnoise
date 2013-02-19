@@ -1,6 +1,6 @@
 /*
     libnoisecl - procedural noise generation tool based on OpenCL library
-    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
+    Copyright (C) 2013  Messenger of death <messengerofdeath@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,17 +18,29 @@
 */
 
 
-#include "clnoisemodifier.h"
+#include "clnoise/basemodule.h"
 
 using namespace CLNoise;
 
-Modifier::Modifier(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
-	Module(attCount, inpCount, outCount, contCount, mName, kSource)
+BaseModule::BaseModule ( const std::string &mName, const char *kSource ) :
+    m_kernelSource(kSource),
+    m_moduleType(NONE),
+    m_moduleName(mName)
 {
-	m_moduleType = MODIFIER;
+
 }
 
-Modifier::~Modifier()
+BaseModule::~BaseModule()
 {
 
+}
+
+void BaseModule::addDependency ( const char *dep )
+{
+    m_dependencies.push_back(dep);
+}
+
+const std::vector< std::string >& BaseModule::getDependencyList() const
+{
+    return m_dependencies;
 }

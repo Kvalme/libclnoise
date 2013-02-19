@@ -18,40 +18,24 @@
 */
 
 
-#include "clnoiseoutput.h"
-#include "clnoise.h"
+#pragma once
 
-using namespace CLNoise;
+#include "clnoise/basemodule.h"
 
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
-    Module ( attCount, inpCount, 0, contCount, mName, kSource),
-    width ( 0 ),
-    height ( 0 ),
-    data (nullptr)
+namespace CLNoise
 {
-    m_moduleType = OUTPUT;
-}
 
-Output::~Output()
+class Function : public BaseModule
 {
-    if(data)delete[] data;
-}
+public:
+    Function(const std::string &mName, const char *kSource);
+    ~Function();
 
-void Output::setData (unsigned char *dat)
-{
-	if(data) delete[] data;
-	data = dat;
-}
+    void setProto(const char *proto) { m_functionProto = proto;}
+    const char* getProto() { return m_functionProto;}
 
-void Output::getImageDimension (unsigned int *w, unsigned int *h) const
-{
-	*w = width;
-	*h = height;
-}
+private:
+    const char *m_functionProto;
+};
 
-void Output::setImageDimension ( unsigned int w, unsigned int h )
-{
-    width = w;
-    height = h;
 }
-
