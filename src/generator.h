@@ -22,19 +22,19 @@
 
 #include <string>
 #include <vector>
-#include "clnoise/moduleattribute.h"
+#include "clnoise/attribute.h"
 #include "clnoise/function.h"
 
 namespace CLNoise
 {
 
-class Module : public Function
+class Generator : public Function
 {
 
 public:
 
-	Module (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
-	virtual ~Module();
+	Generator (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
+	virtual ~Generator();
 
 
 protected:

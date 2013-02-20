@@ -20,7 +20,7 @@
 #include <algorithm>
 
 #include "clnoise/noise.h"
-#include "clnoise/module.h"
+#include "clnoise/generator.h"
 #include "clnoise/output.h"
 #include "clnoise/function.h"
 #include "clnoise/noisemap.h"
@@ -34,9 +34,9 @@ using namespace CLNoise;
 Noise::Noise()
 {
 	isCLAllocatedInternally = false;
-    clCommands = 0;
-    clDeviceId = 0;
-    clContext = 0;
+	clCommands = 0;
+	clDeviceId = 0;
+	clContext = 0;
 }
 
 Noise::~Noise()
@@ -76,7 +76,7 @@ void Noise::initCLContext()
 
 	clCommands = clCreateCommandQueue(clContext, clDeviceId, 0, &err);
 	if (!clCommands) CL_THROW(std::string("Failed to create command queue: ") + getCLError(err));
-	
+
 	isCLAllocatedInternally = true;
 }
 
@@ -84,10 +84,10 @@ void Noise::setCLDevice(cl_device_id device, cl_context context)
 {
 	if (!context) CL_THROW("Invalid context passed");
 	if (!device)  CL_THROW("Invalid device passed");
-	
+
 	if (clCommands) clReleaseCommandQueue(clCommands);
 	if (clContext) clReleaseContext(clContext);
-	
+
 	clContext = context;
 	clDeviceId = device;
 

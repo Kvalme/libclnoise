@@ -1,6 +1,6 @@
 /*
     libnoisecl - procedural noise generation tool based on OpenCL library
-    Copyright (C) 2013  Messenger of death <messengerofdeath@gmail.com>
+    Copyright (C) 2013  Denis Biryukov <denis.birukov@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -17,41 +17,20 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#pragma once
 
-#include "clnoise/output.h"
-#include "clnoise/noise.h"
+#include "clnoise/module.h"
 
-using namespace CLNoise;
-
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
-    Generator ( attCount, inpCount, 0, contCount, mName, kSource),
-    width ( 0 ),
-    height ( 0 ),
-    data (nullptr)
+namespace CLNoise
 {
-    moduleType = OUTPUT;
-}
 
-Output::~Output()
+
+class Filter : public Generator
 {
-    if(data)delete[] data;
-}
+public:
+	Filter (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
+	virtual ~Filter();
+};
 
-void Output::setData (unsigned char *dat)
-{
-	if(data) delete[] data;
-	data = dat;
-}
 
-void Output::getImageDimension (unsigned int *w, unsigned int *h) const
-{
-	*w = width;
-	*h = height;
 }
-
-void Output::setImageDimension ( unsigned int w, unsigned int h )
-{
-    width = w;
-    height = h;
-}
-

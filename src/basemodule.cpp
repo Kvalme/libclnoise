@@ -19,6 +19,7 @@
 
 
 #include "clnoise/basemodule.h"
+#include "clnoise/error.h"
 
 using namespace CLNoise;
 
@@ -46,4 +47,75 @@ const std::vector<std::string>& BaseModule::getDependencyList() const
 	return dependencies;
 }
 
+Attribute BaseModule::getAttribute(unsigned int attributeId) const
+{
+	if (attributeId >= attributes.size()) CL_THROW("Requested information for not existed attribute");
+	return attributes[attributeId];
+}
+
+int BaseModule::getAttributeCount() const
+{
+	return attributes.size();
+}
+
+const std::vector< Attribute >& BaseModule::getAttributes() const
+{
+	return attributes;
+}
+
+BaseModule::ContactInfo BaseModule::getInput(unsigned int inputId) const
+{
+	if (inputId >= inputs.size()) CL_THROW("Requested information for not existed input");
+	return inputs[inputId];
+}
+
+int BaseModule::getInputCount() const
+{
+	return inputs.size();
+}
+
+const std::vector< BaseModule::ContactInfo >& BaseModule::getInputs() const
+{
+	return inputs;
+}
+
+const char *BaseModule::getModuleProto() const
+{
+	return kernelProto;
+}
+
+std::string BaseModule::getName() const
+{
+	return moduleName;
+}
+
+BaseModule::ContactInfo::CONTACT_TYPE BaseModule::getOutputType() const
+{
+	return outputType;
+}
+
+void BaseModule::setModuleProto(const char *proto)
+{
+	kernelProto = proto;
+}
+
+void BaseModule::setModuleSource(const char *source)
+{
+	kernelSource = source;
+}
+
+void BaseModule::setAttribute(const Attribute &attribute)
+{
+
+}
+
+void BaseModule::setAttribute(int id, const Attribute &attribute)
+{
+
+}
+
+void BaseModule::setInput(int inputId, BaseModule *input)
+{
+
+}
 

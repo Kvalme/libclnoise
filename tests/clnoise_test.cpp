@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     {
         Noise noisecl;
         noisecl.initCLContext();
-        Module *source = dynamic_cast<Module*>(noisecl.createModule("Checkerboard", BaseModule::BASE));
+        Generator *source = dynamic_cast<Generator*>(noisecl.createModule("Checkerboard", BaseModule::BASE));
         Output *output = dynamic_cast<Output*>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
         if ( !source ) CL_THROW("Unable to create \"Perlin\" module");
         if ( !output) CL_THROW("Unable to create \"PlaneMap\" module");

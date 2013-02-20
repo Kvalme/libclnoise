@@ -127,7 +127,7 @@ void NoiseMap::processModule (BaseModule *module, std::string *proto, std::strin
 
 	if (module->getType() == BaseModule::BASE || module->getType() == BaseModule::MODIFIER)
 	{
-		Module *baseModule = dynamic_cast<Module *> (module);
+		Generator *baseModule = dynamic_cast<Generator *> (module);
 
 		for (auto input : baseModule->getInputs())
 		{
@@ -164,7 +164,7 @@ void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string 
 	}
 }
 
-void NoiseMap::generateAttributes (Module *module)
+void NoiseMap::generateAttributes (Generator *module)
 {
 	if (module->getType() == BaseModule::FUNCTION) CL_THROW ("Modules of type \"Function\" can't have attributes");
 
@@ -217,7 +217,7 @@ void NoiseMap::generateAttributes (Module *module)
 	}
 }
 
-void NoiseMap::generateKernelCode (Module *module, std::string *kernelCode)
+void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 {
 	if (module->getType() != BaseModule::OUTPUT)
 	{

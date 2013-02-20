@@ -23,7 +23,7 @@
 #include "clnoise/output.h"
 #include "clnoise/function.h"
 #include "clnoise/module.h"
-#include "clnoise/modifier.h"
+#include "clnoise/filter.h"
 
 
 #include "modules/modules_headers.h"

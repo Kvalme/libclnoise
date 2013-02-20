@@ -18,40 +18,19 @@
 */
 
 
-#include "clnoise/output.h"
-#include "clnoise/noise.h"
+#include <algorithm>
+#include "clnoise/generator.h"
+
 
 using namespace CLNoise;
 
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
-    Generator ( attCount, inpCount, 0, contCount, mName, kSource),
-    width ( 0 ),
-    height ( 0 ),
-    data (nullptr)
+Generator::Generator(unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned contCount, const std::string &mName, const char *kSource) :
+	Function (mName, kSource)
 {
-    moduleType = OUTPUT;
+	moduleType = GENERATOR;
 }
 
-Output::~Output()
+Generator::~Generator()
 {
-    if(data)delete[] data;
-}
-
-void Output::setData (unsigned char *dat)
-{
-	if(data) delete[] data;
-	data = dat;
-}
-
-void Output::getImageDimension (unsigned int *w, unsigned int *h) const
-{
-	*w = width;
-	*h = height;
-}
-
-void Output::setImageDimension ( unsigned int w, unsigned int h )
-{
-    width = w;
-    height = h;
 }
 

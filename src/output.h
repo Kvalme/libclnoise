@@ -18,40 +18,34 @@
 */
 
 
-#include "clnoise/output.h"
-#include "clnoise/noise.h"
+#pragma once
 
-using namespace CLNoise;
+#include "clnoise/generator.h"
 
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
-    Generator ( attCount, inpCount, 0, contCount, mName, kSource),
-    width ( 0 ),
-    height ( 0 ),
-    data (nullptr)
+namespace CLNoise
 {
-    moduleType = OUTPUT;
-}
 
-Output::~Output()
+class NoiseMap;
+
+
+class Output : public Generator
 {
-    if(data)delete[] data;
-}
+public:
+	Output (int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
+	virtual ~Output();
 
-void Output::setData (unsigned char *dat)
-{
-	if(data) delete[] data;
-	data = dat;
-}
+	void setImageDimension (unsigned int w, unsigned int h);
+	void getImageDimension (unsigned int *w, unsigned int *h) const;
+	unsigned char* getData () { return data;}
 
-void Output::getImageDimension (unsigned int *w, unsigned int *h) const
-{
-	*w = width;
-	*h = height;
-}
+private:
 
-void Output::setImageDimension ( unsigned int w, unsigned int h )
-{
-    width = w;
-    height = h;
-}
+	friend class NoiseMap;
+	void setData(unsigned char *dat);
 
+	unsigned int width;
+	unsigned int height;
+
+	unsigned char *data;
+};
+}
