@@ -7,6 +7,6 @@ set(CMAKE_C_FLAGS_RELEASE "-fPIC -DPIC -g0 -O3 -Wall -Werror -DNDEBUG -mfpmath=s
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++0x -fPIC -DPIC -Wall -Werror -O0 -g3 -DDEBUG -Wno-cpp")
 set(CMAKE_CXX_FLAGS_RELEASE "-std=c++0x -fPIC -DPIC -Wall -Werror -g0 -O3 -DNDEBUG -mfpmath=sse,387 -msse -msse2 -msse3 -Wno-cpp")
 
-subdirs(src)
-subdirs(tests)
+add_subdirectory(src)
+add_subdirectory(tests)
 

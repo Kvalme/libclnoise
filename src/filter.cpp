@@ -22,13 +22,13 @@
 
 using namespace CLNoise;
 
-Modifier::Modifier(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
+Modifier::Filter(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
 	Module(attCount, inpCount, outCount, contCount, mName, kSource)
 {
 	m_moduleType = MODIFIER;
 }
 
-Modifier::~Modifier()
+Modifier::~Filter()
 {
 
 }

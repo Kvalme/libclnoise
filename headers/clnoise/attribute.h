@@ -25,7 +25,7 @@
 
 namespace CLNoise
 {
-class ModuleAttribute
+class Attribute
 {
 public:
     enum ATTRIBUTE_TYPE
@@ -34,8 +34,8 @@ public:
         INT     = 0,
         FLOAT   = 1,
     };
-    ModuleAttribute() : type ( INVALID ) {};
-    explicit ModuleAttribute ( const std::string &name, int val, int min, int max ) :
+    Attribute() : type ( INVALID ) {};
+    explicit Attribute ( const std::string &name, int val, int min, int max ) :
         type ( INT ), attributeName ( name )
     {
         intValue[0] = val;
@@ -43,7 +43,7 @@ public:
         intValue[2] = max;
         floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
     };
-    explicit ModuleAttribute ( const std::string &name, float val, int min, int max ) :
+    explicit Attribute ( const std::string &name, float val, int min, int max ) :
         type ( FLOAT ), attributeName ( name )
     {
         floatValue[0] = val;

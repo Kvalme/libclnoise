@@ -22,12 +22,13 @@
 
 using namespace CLNoise;
 
-BaseModule::BaseModule ( const std::string &mName, const char *kSource ) :
-    m_kernelSource(kSource),
-    m_moduleType(NONE),
-    m_moduleName(mName)
-{
+int BaseModule::CurrentModuleId = 0;
 
+BaseModule::BaseModule(const std::string &mName, MODULE_TYPE type) :
+	moduleType(type),
+	moduleName(mName),
+	moduleId(CurrentModuleId++)
+{
 }
 
 BaseModule::~BaseModule()
@@ -35,12 +36,14 @@ BaseModule::~BaseModule()
 
 }
 
-void BaseModule::addDependency ( const char *dep )
+void BaseModule::addDependency(const char *dep)
 {
-    m_dependencies.push_back(dep);
+	dependencies.push_back(dep);
 }
 
-const std::vector< std::string >& BaseModule::getDependencyList() const
+const std::vector<std::string>& BaseModule::getDependencyList() const
 {
-    return m_dependencies;
+	return dependencies;
 }
+
+

@@ -25,11 +25,11 @@ namespace CLNoise
 {
 
 
-class Modifier : public Module
+class Filter : public Module
 {
 public:
-	Modifier (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
-	virtual ~Modifier();
+	Filter (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
+	virtual ~Filter();
 };
 
 
