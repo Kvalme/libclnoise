@@ -23,8 +23,8 @@
 
 using namespace CLNoise;
 
-Output::Output ( int attCount, int inpCount, int contCount, const std::string mName, const char *kSource ) :
-    Generator ( attCount, inpCount, 0, contCount, mName, kSource),
+Output::Output ( const std::string mName ) :
+    BaseModule( mName, OUTPUT),
     width ( 0 ),
     height ( 0 ),
     data (nullptr)

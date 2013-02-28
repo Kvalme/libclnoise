@@ -313,3 +313,5 @@ float ValueNoise3D (int x, int y, int z, int seed)
 {
   return 1.0f - ((float)IntValueNoise3D (x, y, z, seed) / 1073741824.0f);
 }
+
+;ENDMODULE

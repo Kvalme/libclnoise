@@ -11,3 +11,5 @@ float MakeInt32Range (float n)
       return n;
     }
 }
+
+;ENDMODULE

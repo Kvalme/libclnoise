@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include "clnoise/module.h"
+#include "clnoise/basemodule.h"
 
 namespace CLNoise
 {
 
 
-class Filter : public Generator
+class Filter : public BaseModule
 {
 public:
-	Filter (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
+	Filter(const std::string &mName);
 	virtual ~Filter();
 };
 

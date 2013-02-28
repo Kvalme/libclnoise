@@ -27,6 +27,8 @@
 namespace CLNoise
 {
 
+class Library;
+
 class BaseModule
 {
 public:
@@ -56,6 +58,12 @@ public:
 	virtual ~BaseModule();
 
 	/**
+	 * Return module type
+	 * @return returns module type
+	 */
+	virtual MODULE_TYPE getType() const;
+	
+	/**
 	 * Returns module name
 	 * @return module name
 	 */
@@ -68,34 +76,22 @@ public:
 	virtual void setModuleSource(const char *source);
 
 	/**
-	 * Sets module prototype.
-	 * @param proto pointer to the null-terminated string, containing module prototype. Module prototype should be terminated with ';'
-	 */
-	virtual void setModuleProto(const char *proto);
-
-	/**
-	 * Return module prototype.
-	 * @return null-terminated string with module prototype. Can be nullptr if prototype was not set
-	 */
-	virtual const char *getModuleProto() const;
-
-	/**
-	 * Builds OpenCL code for module and returns it
+	 * Builds OpenCL code for module
 	 * @return null-terminated string with module source.
 	 */
-	virtual const char *getBuildedSource() = 0;
+	//virtual void buildModule(const std::string &proto, const std::string &source);
 
 	/**
 	 * Returns number of inputs that should be set for this module to work
 	 * @return number of inputs
 	 */
-	virtual int getInputCount() const;
+	virtual unsigned int getInputCount() const;
 
 	/**
 	 * Return number of attributes for module.
 	 * @return number of attributes
 	 */
-	virtual int getAttributeCount() const;
+	virtual unsigned int getAttributeCount() const;
 
 	/**
 	 * Returns output type of module
@@ -135,8 +131,9 @@ public:
 	 * @param inputId slot id
 	 * @param input pointer to the input module
 	 */
-	virtual void setInput(int inputId, BaseModule *input);
+	virtual void setInput(unsigned int inputId, CLNoise::BaseModule *input);
 
+	
 	/**
 	 * Sets attribute. Attribute will be found using Attribute::name.
 	 * If no such attribute exists it will be added to the end of the attribute list. This can be used to create custom modules.
@@ -151,7 +148,7 @@ public:
 	 * @param id attribute slot
 	 * @param attribute attribute description
 	 */
-	virtual void setAttribute(int id, const Attribute &attribute);
+	virtual void setAttribute(unsigned int id, const CLNoise::Attribute &attribute);
 
 	/**
 	 * Adds module dependency. Module will require all dependencies to be added into final OpenCL code.
@@ -165,8 +162,15 @@ public:
 	 */
 	virtual const std::vector<std::string>& getDependencyList() const;
 
-
 protected:
+	/**
+	 * Adds input to the set of existed inputs. Should be used carefully
+	 * @param ci constant reference to the contact(input) description
+	 */
+	virtual void addInput(const ContactInfo &ci);
+	
+	virtual void setOutputType( ContactInfo::CONTACT_TYPE type);
+	
 	MODULE_TYPE moduleType;
 	std::string moduleName;
 	int moduleId;
@@ -180,6 +184,8 @@ protected:
 	std::vector<ContactInfo> inputs;
 
 	static int CurrentModuleId;
+	
+	friend class Library;
 };
 
 }

@@ -22,11 +22,9 @@
 
 using namespace CLNoise;
 
-Function::Function ( const std::string &mName, const char *kSource ) :
-    BaseModule ( mName, kSource ),
-    m_functionProto(0)
+Function::Function ( const std::string &mName ) :
+    BaseModule ( mName, FUNCTION )
 {
-    m_moduleType = FUNCTION;
 }
 
 Function::~Function()
@@ -34,3 +32,7 @@ Function::~Function()
 
 }
 
+void Function::setProto(const char *proto)
+{
+	kernelProto = proto;
+}

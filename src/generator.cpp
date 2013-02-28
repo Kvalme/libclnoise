@@ -24,10 +24,9 @@
 
 using namespace CLNoise;
 
-Generator::Generator(unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned contCount, const std::string &mName, const char *kSource) :
-	Function (mName, kSource)
+Generator::Generator(const std::string &mName) :
+	BaseModule (mName, GENERATOR)
 {
-	moduleType = GENERATOR;
 }
 
 Generator::~Generator()

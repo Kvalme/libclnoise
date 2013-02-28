@@ -28,8 +28,10 @@ namespace CLNoise
 class Function : public BaseModule
 {
 public:
-    Function(const std::string &mName, const char *kSource);
-    ~Function();
+	Function(const std::string &mName);
+	~Function();
+
+	void setProto(const char *proto);
 
 private:
 };

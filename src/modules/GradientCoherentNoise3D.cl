@@ -43,3 +43,5 @@ float GradientCoherentNoise3D (float x, float y, float z, int seed)
 
   return mix (iy0, iy1, zs);
 }
+
+;ENDMODULE

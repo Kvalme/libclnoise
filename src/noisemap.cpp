@@ -22,9 +22,9 @@
 #include "clnoise/noisemap.h"
 #include "clnoise/error.h"
 #include "clnoise/output.h"
-#include "clnoise/moduleattribute.h"
+#include "clnoise/attribute.h"
 #include "clnoise/noise.h"
-#include "clnoise/modifier.h"
+#include "clnoise/filter.h"
 
 #include "library.h"
 
@@ -57,10 +57,8 @@ void NoiseMap::build (Output *output)
 	if (!output) CL_THROW ("Invalid output passed");
 
 	auto outputInputs = output->getInputs();
-	auto outputControls = output->getControls();
 
 	if (output->getInputCount() != outputInputs.size()) CL_THROW ("Invalid amount of input modules in output module");
-	if (output->getControlCount() != outputControls.size()) CL_THROW ("Invalid amount of control modules in output module");
 
 	processedDeps.clear();
 	attributeMap.clear();
@@ -73,17 +71,13 @@ void NoiseMap::build (Output *output)
 
 	for (auto input : outputInputs)
 	{
-		processModule (input, &modulesProtos, &modulesCode, &kernelCode);
+		processModule (input.input , &modulesProtos, &modulesCode, &kernelCode);
 	}
 
-	for (auto control : outputControls)
-	{
-		processModule (control, &modulesProtos, &modulesCode, &kernelCode);
-	}
 
-	modulesProtos.append(output->getProto());
+/*	modulesProtos.append(output->getProto());
 	modulesCode.append(output->getKernelSource());
-	generateKernelCode(output, &kernelCode);
+	generateKernelCode(output, &kernelCode);*/
 
 	buildCode(modulesProtos, modulesCode, kernelCode);
 }
@@ -92,18 +86,18 @@ void NoiseMap::updateAttributes()
 {
 	for (auto moduleIt : attributeMap)
 	{
-		for (ModuleAttribute attribute : moduleIt.first->getAttributes())
+		for (Attribute attribute : moduleIt.first->getAttributes())
 		{
 			auto attIt = moduleIt.second.find(attribute.getName());
 			if (attIt == moduleIt.second.end()) CL_THROW (std::string("Attribute \"") + attribute.getName() + "\" not listed in attribute map.");
 
 			switch (attribute.getType())
 			{
-				case ModuleAttribute::FLOAT:
+				case Attribute::FLOAT:
 					if (floatAttributes.size() <= attIt->second) CL_THROW ("Attribute position is out of bounds");
 					floatAttributes[attIt->second] = attribute.getFloat();
 					break;
-				case ModuleAttribute::INT:
+				case Attribute::INT:
 					if (intAttributes.size() <= attIt->second) CL_THROW ("Attribute position is out of bounds");
 					intAttributes[attIt->second] = attribute.getInt();
 					break;
@@ -121,8 +115,8 @@ void NoiseMap::processModule (BaseModule *module, std::string *proto, std::strin
 
 	processDeps (module, proto, code);
 
-	Function *function = dynamic_cast<Function *> (module);
-	if (function->getProto()) proto->append (function->getProto());
+//	Function *function = dynamic_cast<Function *> (module);
+/*	if (function->getProto()) proto->append (function->getProto());
 	if (function->getKernelSource()) code->append (function->getKernelSource());
 
 	if (module->getType() == BaseModule::BASE || module->getType() == BaseModule::MODIFIER)
@@ -141,7 +135,7 @@ void NoiseMap::processModule (BaseModule *module, std::string *proto, std::strin
 
 		generateAttributes (baseModule);
 		generateKernelCode (baseModule, kernelCode);
-	}
+	}*/
 }
 
 void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string *code)
@@ -154,17 +148,17 @@ void NoiseMap::processDeps (BaseModule *module, std::string *proto, std::string 
 		if (!mod) CL_THROW ("Invalid dependency: " + str);
 		if (mod->getType() == BaseModule::OUTPUT) CL_THROW ("Output module can't be set as dependency");
 
-		Function *function = dynamic_cast<Function *> (mod);
-		proto->append (function->getProto());
+//		Function *function = dynamic_cast<Function *> (mod);
+/*		proto->append (function->getProto());
 		code->append (function->getKernelSource());
 
-		processedDeps.insert (str);
+		processedDeps.insert (str);*/
 
 		processDeps(mod, proto, code);
 	}
 }
 
-void NoiseMap::generateAttributes (Generator *module)
+void NoiseMap::generateAttributes (BaseModule *module)
 {
 	if (module->getType() == BaseModule::FUNCTION) CL_THROW ("Modules of type \"Function\" can't have attributes");
 
@@ -174,7 +168,7 @@ void NoiseMap::generateAttributes (Generator *module)
 		attributeMapEntryIt = attributeMap.insert (std::make_pair (module, std::map<std::string, unsigned>())).first;
 	}
 
-	for (ModuleAttribute attribute : module->getAttributes())
+	for (Attribute attribute : module->getAttributes())
 	{
 		unsigned position;
 
@@ -185,11 +179,11 @@ void NoiseMap::generateAttributes (Generator *module)
 			position = attIt->second;
 			switch (attribute.getType())
 			{
-				case ModuleAttribute::FLOAT:
+				case Attribute::FLOAT:
 					if (floatAttributes.size() <= position) CL_THROW ("Attribute position is out of bounds");
 					floatAttributes[position] = attribute.getFloat();
 					break;
-				case ModuleAttribute::INT:
+				case Attribute::INT:
 					if (intAttributes.size() <= position) CL_THROW ("Attribute position is out of bounds");
 					intAttributes[position] = attribute.getInt();
 					break;
@@ -201,11 +195,11 @@ void NoiseMap::generateAttributes (Generator *module)
 		{
 			switch (attribute.getType())
 			{
-				case ModuleAttribute::FLOAT:
+				case Attribute::FLOAT:
 					position = floatAttributes.size();
 					floatAttributes.push_back (attribute.getFloat());
 					break;
-				case ModuleAttribute::INT:
+				case Attribute::INT:
 					position = intAttributes.size();
 					intAttributes.push_back (attribute.getInt());
 					break;
@@ -217,7 +211,7 @@ void NoiseMap::generateAttributes (Generator *module)
 	}
 }
 
-void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
+void NoiseMap::generateKernelCode (BaseModule *module, std::string *kernelCode)
 {
 	if (module->getType() != BaseModule::OUTPUT)
 	{
@@ -234,7 +228,7 @@ void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 		args.push_back("coord");
 	}
 	//Generator module - pass position as first argument
-	if(module->getInputCount() == 0 && module->getType() == BaseModule::BASE)
+	if(module->getInputCount() == 0 && module->getType() == BaseModule::GENERATOR)
 	{
 		args.push_back("position");
 	}
@@ -242,7 +236,7 @@ void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 	auto attributeMapEntryIt = attributeMap.find(module);
 	if ( module->getAttributeCount() != 0 && attributeMapEntryIt == attributeMap.end()) CL_THROW ("Unable to found attribute map for module");
 
-	for ( ModuleAttribute att : module->getAttributes())
+	for ( Attribute att : module->getAttributes())
 	{
 		auto attInfoIt = attributeMapEntryIt->second.find(att.getName());
 		if(attInfoIt == attributeMapEntryIt->second.end()) CL_THROW ("Unmapped attribute");
@@ -251,10 +245,10 @@ void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 
 		switch (att.getType())
 		{
-			case ModuleAttribute::FLOAT:
+			case Attribute::FLOAT:
 				snprintf(value, 255, "floatAttributes[%d]", attInfoIt->second);
 				break;
-			case ModuleAttribute::INT:
+			case Attribute::INT:
 				snprintf(value, 255, "intAttributes[%d]", attInfoIt->second);
 				break;
 			default:
@@ -263,7 +257,7 @@ void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 		args.push_back(value);
 	}
 	
-	for ( auto input : module->getInputs())
+/*	for ( auto input : module->getInputs())
 	{
 		args.push_back(input->getName() + "Out");
 	}
@@ -285,7 +279,7 @@ void NoiseMap::generateKernelCode (Generator *module, std::string *kernelCode)
 		kernelCode->append(str);
 		isFirst = false;
 	}
-	kernelCode->append(");\n");
+	kernelCode->append(");\n");*/
 }
 
 void NoiseMap::buildCode (const std::string &proto, const std::string &code, const std::string &kernelCode)

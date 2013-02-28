@@ -53,7 +53,7 @@ Attribute BaseModule::getAttribute(unsigned int attributeId) const
 	return attributes[attributeId];
 }
 
-int BaseModule::getAttributeCount() const
+unsigned int BaseModule::getAttributeCount() const
 {
 	return attributes.size();
 }
@@ -69,7 +69,7 @@ BaseModule::ContactInfo BaseModule::getInput(unsigned int inputId) const
 	return inputs[inputId];
 }
 
-int BaseModule::getInputCount() const
+unsigned int BaseModule::getInputCount() const
 {
 	return inputs.size();
 }
@@ -77,11 +77,6 @@ int BaseModule::getInputCount() const
 const std::vector< BaseModule::ContactInfo >& BaseModule::getInputs() const
 {
 	return inputs;
-}
-
-const char *BaseModule::getModuleProto() const
-{
-	return kernelProto;
 }
 
 std::string BaseModule::getName() const
@@ -94,11 +89,6 @@ BaseModule::ContactInfo::CONTACT_TYPE BaseModule::getOutputType() const
 	return outputType;
 }
 
-void BaseModule::setModuleProto(const char *proto)
-{
-	kernelProto = proto;
-}
-
 void BaseModule::setModuleSource(const char *source)
 {
 	kernelSource = source;
@@ -106,16 +96,60 @@ void BaseModule::setModuleSource(const char *source)
 
 void BaseModule::setAttribute(const Attribute &attribute)
 {
-
+	bool isFound = false;
+	for (Attribute &att : attributes)
+	{
+		if (att.getName() == attribute.getName())
+		{
+			if (attribute.getType() == Attribute::INT)
+				att.setValue(attribute.getInt());
+			else
+				att.setValue(attribute.getFloat());
+			isFound = true;
+			break;
+		}
+	}
+	if (!isFound)
+		attributes.push_back(attribute);
 }
 
-void BaseModule::setAttribute(int id, const Attribute &attribute)
+void BaseModule::setAttribute(unsigned int id, const Attribute &attribute)
 {
-
+	if (id < attributes.size())
+	{
+		attributes[id] = attribute;
+	}
+	else
+	{
+		attributes.resize(id-1);
+		attributes.push_back(attribute);
+	}
 }
 
-void BaseModule::setInput(int inputId, BaseModule *input)
+void BaseModule::setInput(unsigned int inputId, BaseModule *input)
 {
-
+	if (!input) CL_THROW("NULL module passed as input");
+	if (inputId >= inputs.size()) CL_THROW("Requested connection to not existed slot");
+	if (input->getOutputType() != inputs[inputId].type) CL_THROW("Unable to connect input to required slot. Types mismatch");
+	
+	inputs[inputId].input = input;
 }
+
+void BaseModule::addInput(const ContactInfo &ci)
+{
+	ContactInfo c = ci;
+	c.input = nullptr;
+	inputs.push_back(c);
+}
+
+void BaseModule::setOutputType(BaseModule::ContactInfo::CONTACT_TYPE type)
+{
+	outputType = type;
+}
+
+BaseModule::MODULE_TYPE BaseModule::getType() const
+{
+	return moduleType;
+}
+
 

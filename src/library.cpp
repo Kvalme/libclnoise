@@ -22,8 +22,9 @@
 
 #include "clnoise/output.h"
 #include "clnoise/function.h"
-#include "clnoise/module.h"
+#include "clnoise/basemodule.h"
 #include "clnoise/filter.h"
+#include "clnoise/generator.h"
 
 
 #include "modules/modules_headers.h"
@@ -40,7 +41,6 @@ Library::Library()
 
 Library::Library ( const Library & )
 {
-
 }
 
 Library &Library::operator= ( const Library & )

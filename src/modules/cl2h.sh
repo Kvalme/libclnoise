@@ -3,52 +3,42 @@
 SUM_OUT="modules.h"
 ALL_HEADERS="modules_headers.h"
 
-function processNameLine 
+function processModuleLine
 {
-#;MODULE NAME TYPE A 6 I 0 O 1 C 0
-    CurModuleName="${2}_Mod"
-    if [ "$3" == "BASE" ]
+#;MODULE NAME TYPE
+    CurModuleName="${2}"
+    CurModuleObjectName="${2}_Mod"
+    ModuleFileName="${2}.h"
+    echo -n "const char *${CurModuleName}_Src = " > $ModuleFileName
+    echo "#include \"${2}.h\"" >> $ALL_HEADERS
+    
+    
+    if [ "$3" == "GENERATOR" ]
     then
-        echo "Module *"${2}"_Mod = new Module($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
+        echo "Generator *${2}_Mod = new Generator(\"$2\");" >> $SUM_OUT
     elif [ "$3" == "OUTPUT" ]
     then
-        echo "Output *"${2}"_Mod = new Output($5, $7, $9, \"$2\", "$2"Src);" >> $SUM_OUT
+        echo "Output *"${2}"_Mod = new Output(\"$2\");" >> $SUM_OUT
     elif [ "$3" == "FUNCTION" ]
     then
-	echo "Function *"${2}"_Mod = new Function(\"$2\", "$2"Src);" >> $SUM_OUT
+	echo "Function *"${2}"_Mod = new Function(\"$2\");" >> $SUM_OUT
     elif [ "$3" == "MODIFIER" ]
     then
-	echo "Modifier *"${2}"_Mod = new Modifier($5, $7, $9, ${11}, \"$2\", "$2"Src);" >> $SUM_OUT
+	echo "Modifier *"${2}"_Mod = new Filter(\"$2\");" >> $SUM_OUT
     fi
-
-    echo "availableModules.insert(std::make_pair(\"${2}\", ${2}_Mod));" >> $SUM_OUT
+    
+    echo "${2}_Mod->setModuleSource(${2}_Src);" >> $SUM_OUT
 }
 
-function processNameLineBuiltin
+function processEndModuleLine
 {
-#;MODULE NAME TYPE A 6 I 0 O 1 C 0
-    CurModuleName="${2}_Mod"
-    if [ "$3" == "BASE" ]
-    then
-        echo "Module *"${2}"_Mod = new Module($5, $7, $9, ${11}, \"$2\", 0);" >> $SUM_OUT
-    elif [ "$3" == "OUTPUT" ]
-    then
-        echo "Output *"${2}"_Mod = new Output($5, $7, $9, \"$2\", 0);" >> $SUM_OUT
-    elif [ "$3" == "FUNCTION" ]
-    then
-	echo "Function *"${2}"_Mod = new Function(\"$2\", 0);" >> $SUM_OUT
-    elif [ "$3" == "MODIFIER" ]
-    then
-	echo "Modifier *"${2}"_Mod = new Modifier($5, $7, $9, ${11}, \"$2\", 0);" >> $SUM_OUT
-    fi
-
-    echo "availableModules.insert(std::make_pair(\"${2}\", ${2}_Mod));" >> $SUM_OUT
+	echo -n ";" >> $ModuleFileName
+	echo "availableModules.insert(std::make_pair(\"$CurModuleName\", $CurModuleObjectName));" >> $SUM_OUT
 }
-
 
 function processProtoLine
 {
-    echo -n "${CurModuleName}->setProto(\"" >> $SUM_OUT
+    echo -n "${CurModuleObjectName}->setProto(\"" >> $SUM_OUT
     for i in $@
     do
         if [ "$i" != ";PROTO" ]
@@ -64,17 +54,52 @@ function processArgLine
 #;ARG ID TYPE NAME DEF
     if [ "$3" == "float" ]
     then
-        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}f, ${6}f, ${7}f));" >> $SUM_OUT
+        echo "${CurModuleObjectName}->setAttribute($2, Attribute(\"$4\", ${5}f, ${6}f, ${7}f));" >> $SUM_OUT
     elif [ "$3" == "int" ]
     then
-        echo "${CurModuleName}->setAttribute($2, ModuleAttribute(\"$4\", ${5}, ${6}, ${7}));" >> $SUM_OUT
+        echo "${CurModuleObjectName}->setAttribute($2, Attribute(\"$4\", ${5}, ${6}, ${7}));" >> $SUM_OUT
     fi
 
 }
 
 function processDepLine
 {
-    echo "${CurModuleName}->addDependency(\"${2}\");" >> $SUM_OUT;
+	echo "${CurModuleObjectName}->addDependency(\"${2}\");" >> $SUM_OUT;
+}
+
+function processOutType
+{
+	echo "${CurModuleObjectName}->setOutputType(BaseModule::ContactInfo::${2});" >> $SUM_OUT
+}
+
+function processInputLine
+{
+#;INPUT NAME TYPE
+	echo "${CurModuleObjectName}->addInput(BaseModule::ContactInfo(\"${2}\", BaseModule::ContactInfo::${3}));" >> $SUM_OUT
+}
+
+function processModule
+{
+	if [ "$1" == ";ARG" ]
+	then
+		processArgLine $*
+	elif [ "$1" == ";DEP" ]
+	then
+		processDepLine $*
+	elif [ "$1" == ";OUTTYPE" ]
+	then
+		processOutType $*
+	elif [ "$1" == ";INPUT" ]
+	then
+		processInputLine $*
+	elif [ "$1" == ";PROTO" ]
+	then
+		processProtoLine $*
+	elif [ "${1:0:1}" != ";" ]
+	then
+		echo "\"$*\"" >> $ModuleFileName
+	fi
+	
 }
 
 >$SUM_OUT
@@ -83,46 +108,32 @@ function processDepLine
 for a in *.cl
 do
 
-    name=`echo $a | cut -f1 -d'.'`
-    outname=$name."h"
-
-    if [ "$name" != "builtin" ]
-    then
-	echo "#include \"$name.h\"" >> $ALL_HEADERS
-        echo "const char "$name"Src[] = " >$outname
-    fi
+    moduleStarted=0
 
     while IFS= read -r line
     do
 
 	for part in $line
 	do
-    	    if [ "$part" == ";BUILTIN_MODULE" ]
+	    if [ "$part" == ";MODULE" ]
 	    then
-		processNameLineBuiltin $line
-		break
-    	    elif [ "$part" == ";MODULE" ]
+		moduleStarted=1
+		processModuleLine $line
+	    elif [ "$part" == ";ENDMODULE" ]
 	    then
-		processNameLine $line
-		break
-    	    elif [ "$part" == ";ARG" ]
-    	    then
-    		processArgLine $line
-		break
-    	    elif [ "$part" == ";PROTO" ]
-	    then
-		processProtoLine $line
-		break
-    	    elif [ "$part" == ";DEP" ]
-	    then
-		processDepLine $line
-		break
-    	    else
-		echo "\"$line\\n\"">>$outname
-		break
-    	    fi
+		moduleStarted=0
+		processEndModuleLine $line
+		
+	    fi
+    	    
+    	    break
 	done
+
+        if [ "$moduleStarted" == "1" ]
+        then
+	    processModule $line
+    	fi
+	
     done < $a
-echo ";">>$outname
-echo $MODULE_NAME
+    
 done

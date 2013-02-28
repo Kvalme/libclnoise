@@ -28,12 +28,12 @@
 namespace CLNoise
 {
 
-class Generator : public Function
+class Generator : public BaseModule
 {
 
 public:
 
-	Generator (unsigned  attCount, unsigned  inpCount, unsigned  outCount, unsigned  contCount, const std::string &mName, const char *kSource);
+	Generator(const std::string &mName);
 	virtual ~Generator();
 
 

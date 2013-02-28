@@ -18,17 +18,16 @@
 */
 
 
-#include "clnoise/modifier.h"
+#include "clnoise/filter.h"
 
 using namespace CLNoise;
 
-Modifier::Filter(unsigned int attCount, unsigned int inpCount, unsigned int outCount, unsigned int contCount, const std::string &mName, const char *kSource): 
-	Module(attCount, inpCount, outCount, contCount, mName, kSource)
+Filter::Filter(const std::string &mName): 
+	BaseModule(mName, FILTER)
 {
-	m_moduleType = MODIFIER;
 }
 
-Modifier::~Filter()
+Filter::~Filter()
 {
 
 }

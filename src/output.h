@@ -28,10 +28,10 @@ namespace CLNoise
 class NoiseMap;
 
 
-class Output : public Generator
+class Output : public BaseModule
 {
 public:
-	Output (int attCount, int inpCount, int contCount, const std::string mName, const char *kSource);
+	Output (const std::string mName);
 	virtual ~Output();
 
 	void setImageDimension (unsigned int w, unsigned int h);
