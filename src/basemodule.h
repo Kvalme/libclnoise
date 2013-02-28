@@ -27,6 +27,8 @@
 namespace CLNoise
 {
 
+class NoiseMap;
+
 class Library;
 
 class BaseModule
@@ -168,8 +170,8 @@ protected:
 	 * @param ci constant reference to the contact(input) description
 	 */
 	virtual void addInput(const ContactInfo &ci);
-	
 	virtual void setOutputType( ContactInfo::CONTACT_TYPE type);
+	virtual void build(const NoiseMap *map);
 	
 	MODULE_TYPE moduleType;
 	std::string moduleName;

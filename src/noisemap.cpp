@@ -71,7 +71,8 @@ void NoiseMap::build (Output *output)
 
 	for (auto input : outputInputs)
 	{
-		processModule (input.input , &modulesProtos, &modulesCode, &kernelCode);
+		BaseModule *module = input->input;
+		module->build(this);
 	}
 
 
@@ -463,3 +464,4 @@ void NoiseMap::transferData()
 		CL_THROW ( std::string ( "Unable to read buffer!" ) + getCLError ( err ) );
 	}
 }
+
