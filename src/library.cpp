@@ -31,8 +31,8 @@
 
 using namespace CLNoise;
 
-Library Library::__instance;
 std::map<std::string, BaseModule *> Library::availableModules;
+Library Library::__instance;
 
 Library::Library()
 {

@@ -97,7 +97,7 @@ void BaseModule::setModuleSource(const char *source)
 void BaseModule::setAttribute(const Attribute &attribute)
 {
 	bool isFound = false;
-	for (Attribute &att : attributes)
+for (Attribute & att : attributes)
 	{
 		if (att.getName() == attribute.getName())
 		{
@@ -121,7 +121,7 @@ void BaseModule::setAttribute(unsigned int id, const Attribute &attribute)
 	}
 	else
 	{
-		attributes.resize(id-1);
+		attributes.resize(id + 1);
 		attributes.push_back(attribute);
 	}
 }
@@ -131,7 +131,7 @@ void BaseModule::setInput(unsigned int inputId, BaseModule *input)
 	if (!input) CL_THROW("NULL module passed as input");
 	if (inputId >= inputs.size()) CL_THROW("Requested connection to not existed slot");
 	if (input->getOutputType() != inputs[inputId].type) CL_THROW("Unable to connect input to required slot. Types mismatch");
-	
+
 	inputs[inputId].input = input;
 }
 
