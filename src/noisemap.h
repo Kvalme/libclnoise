@@ -58,15 +58,17 @@ public:
 	
 protected:
 	
-	void processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode);
-	void processDeps (BaseModule *module, std::string *proto, std::string *code);
-	void generateAttributes (BaseModule *module);
 	void generateKernelCode (BaseModule *module, std::string *kernelCode);
-	void buildCode(const std::string &proto, const std::string &code, const std::string &kernelCode);
+	void buildCode();
 
 	std::string kernelSource;
+	
+	std::string kernelSources;
+	std::string kernelProtos;
+	
 	Output *buildedOutput;
 	std::map<BaseModule *, std::map<std::string, unsigned> > attributeMap;
+	
 	std::set<std::string> processedDeps;
 
 	std::vector<int> intAttributes;

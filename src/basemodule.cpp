@@ -98,7 +98,7 @@ void BaseModule::setModuleSource(const char *source)
 void BaseModule::setAttribute(const Attribute &attribute)
 {
 	bool isFound = false;
-for (Attribute & att : attributes)
+	for (Attribute & att : attributes)
 	{
 		if (att.getName() == attribute.getName())
 		{
@@ -123,7 +123,7 @@ void BaseModule::setAttribute(unsigned int id, const Attribute &attribute)
 	else
 	{
 		attributes.resize(id + 1);
-		attributes.push_back(attribute);
+		attributes[id] = attribute;
 	}
 }
 

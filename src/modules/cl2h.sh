@@ -82,22 +82,19 @@ function processModule
 {
 	if [ "$1" == ";ARG" ]
 	then
-		processArgLine $*
+		processArgLine ${*}
 	elif [ "$1" == ";DEP" ]
 	then
-		processDepLine $*
+		processDepLine ${*}
 	elif [ "$1" == ";OUTTYPE" ]
 	then
-		processOutType $*
+		processOutType ${*}
 	elif [ "$1" == ";INPUT" ]
 	then
-		processInputLine $*
+		processInputLine ${*}
 	elif [ "$1" == ";PROTO" ]
 	then
-		processProtoLine $*
-	elif [ "${1:0:1}" != ";" ]
-	then
-		echo "\"$*\"" >> $ModuleFileName
+		processProtoLine ${*}
 	fi
 	
 }
@@ -131,7 +128,12 @@ do
 
         if [ "$moduleStarted" == "1" ]
         then
-	    processModule $line
+		if [ "${line:0:1}" != ";" ]
+		then
+			echo "\"$line\n\"" >> $ModuleFileName
+		else
+			processModule $line
+		fi
     	fi
 	
     done < $a

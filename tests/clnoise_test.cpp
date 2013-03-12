@@ -63,7 +63,10 @@ int main(int argc, char *argv[])
 		noiseMap.buildKernel();
 		elapsed = runTimer.get_elapsed_time_us();
 		std::cout << "Noise map kernel build:" << elapsed << " us" << std::endl;
-
+		
+		std::ofstream clOut("output.cl", std::ios_base::out | std::ios_base::trunc);
+		clOut<<noiseMap.getKernelCode();
+		
 		runTimer.reset();
 		noiseMap.runKernel();
 		elapsed = runTimer.get_elapsed_time_us();
