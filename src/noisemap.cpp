@@ -65,22 +65,9 @@ void NoiseMap::build (Output *output)
 	intAttributes.clear();
 	floatAttributes.clear();
 
+	output->build(this);
+	
 	buildedOutput = output;
-
-	std::string modulesProtos, modulesCode, kernelCode;
-
-	for (auto input : outputInputs)
-	{
-		BaseModule *module = input->input;
-		module->build(this);
-	}
-
-
-/*	modulesProtos.append(output->getProto());
-	modulesCode.append(output->getKernelSource());
-	generateKernelCode(output, &kernelCode);*/
-
-	buildCode(modulesProtos, modulesCode, kernelCode);
 }
 
 void NoiseMap::updateAttributes()
@@ -108,6 +95,27 @@ void NoiseMap::updateAttributes()
 		}
 	}
 }
+
+void NoiseMap::addAttribute(BaseModule *module, const Attribute &att)
+{
+
+}
+
+void NoiseMap::addDependency(const std::string &depName)
+{
+
+}
+
+void NoiseMap::addPrototype(const char *proto)
+{
+
+}
+
+void NoiseMap::addSource(const char *kernelSource)
+{
+
+}
+
 
 void NoiseMap::processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode)
 {

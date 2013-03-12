@@ -55,3 +55,12 @@ void Output::setImageDimension ( unsigned int w, unsigned int h )
     height = h;
 }
 
+void Output::buildHeader(NoiseMap *map)
+{
+	
+}
+
+void Output::buildSource(NoiseMap *map)
+{
+
+}

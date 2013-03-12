@@ -32,8 +32,12 @@ public:
 	~Function();
 
 	void setProto(const char *proto);
-
+	
 private:
+	virtual void buildHeader(NoiseMap *map);
+	virtual void buildSource(NoiseMap *map);
+	
+	const char *kernelProto;
 };
 
 }

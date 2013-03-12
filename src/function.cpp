@@ -19,6 +19,7 @@
 
 
 #include "clnoise/function.h"
+#include "noisemap.h"
 
 using namespace CLNoise;
 
@@ -36,3 +37,14 @@ void Function::setProto(const char *proto)
 {
 	kernelProto = proto;
 }
+
+void Function::buildHeader(NoiseMap *map)
+{
+	map->addPrototype(kernelProto);
+}
+
+void Function::buildSource(NoiseMap *map)
+{
+	map->addSource(kernelSource);
+}
+

@@ -32,13 +32,15 @@ class Generator : public BaseModule
 {
 
 public:
-
 	Generator(const std::string &mName);
 	virtual ~Generator();
 
+	void setProto(const char *proto);
 
 protected:
+	virtual void buildHeader(NoiseMap *map);
+	virtual void buildSource(NoiseMap *map);
 
-
+	const char *kernelProto;
 };
 }

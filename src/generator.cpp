@@ -19,17 +19,40 @@
 
 
 #include <algorithm>
-#include "clnoise/generator.h"
+#include <stdio.h>
+#include <string.h>
 
+#include "clnoise/generator.h"
+#include "clnoise/noisemap.h"
 
 using namespace CLNoise;
 
 Generator::Generator(const std::string &mName) :
-	BaseModule (mName, GENERATOR)
+	BaseModule(mName, GENERATOR)
 {
 }
 
 Generator::~Generator()
 {
+}
+
+void Generator::setProto(const char *proto)
+{
+	kernelProto = proto;
+}
+
+void Generator::buildHeader(NoiseMap *map)
+{
+	map->addPrototype(kernelProto);
+}
+
+void Generator::buildSource(NoiseMap *map)
+{
+	map->addSource(kernelSource);
+	
+	for (unsigned a = 0; a<attributes.size(); ++a)
+	{
+		map->addAttribute(this, attributes[a]);
+	}
 }
 

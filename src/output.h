@@ -25,22 +25,25 @@
 namespace CLNoise
 {
 
-class NoiseMap;
-
-
 class Output : public BaseModule
 {
 public:
-	Output (const std::string mName);
+	Output(const std::string mName);
 	virtual ~Output();
 
-	void setImageDimension (unsigned int w, unsigned int h);
-	void getImageDimension (unsigned int *w, unsigned int *h) const;
-	unsigned char* getData () { return data;}
+	void setImageDimension(unsigned int w, unsigned int h);
+	void getImageDimension(unsigned int *w, unsigned int *h) const;
+	unsigned char *getData()
+	{
+		return data;
+	}
 
 private:
-
 	friend class NoiseMap;
+
+	virtual void buildHeader(NoiseMap *map);
+	virtual void buildSource(NoiseMap *map);
+
 	void setData(unsigned char *dat);
 
 	unsigned int width;

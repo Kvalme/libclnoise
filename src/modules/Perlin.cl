@@ -7,7 +7,10 @@
 ;DEP GradientCoherentNoise3D
 ;DEP MakeInt32Range
 ;OUTTYPE FLOAT
+;PROTO float Perlin( float2 pos, float frequency, float lacunarity, int octaveCount, float persistence, int seed);
 
+float Perlin( float2 pos, float frequency, float lacunarity, int octaveCount, float persistence, int seed)
+{
   float OUTPUT = 0.0;
   float signal = 0.0;
   float curPersistence = 1.0;
@@ -39,5 +42,6 @@
   }
 
   return OUTPUT;
+}
 
 ;ENDMODULE

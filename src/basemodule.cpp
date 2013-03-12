@@ -20,6 +20,7 @@
 
 #include "clnoise/basemodule.h"
 #include "clnoise/error.h"
+#include "noisemap.h"
 
 using namespace CLNoise;
 
@@ -152,4 +153,23 @@ BaseModule::MODULE_TYPE BaseModule::getType() const
 	return moduleType;
 }
 
+
+void BaseModule::build(NoiseMap *map)
+{
+	for (unsigned a = 0; a < dependencies.size(); ++a)
+	{
+		map->addDependency(dependencies[a]);
+	}
+	
+	for (unsigned a = 0; a < inputs.size(); ++a)
+	{
+		ContactInfo ci = inputs[a];
+		if ( ci.input == nullptr ) CL_THROW(std::string("NULL passed as input to module: ") + moduleName);
+		ci.input->build(map);
+	}
+	
+	//Generate header
+	buildHeader(map);
+	buildSource(map);
+}
 

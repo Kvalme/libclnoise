@@ -78,12 +78,6 @@ public:
 	virtual void setModuleSource(const char *source);
 
 	/**
-	 * Builds OpenCL code for module
-	 * @return null-terminated string with module source.
-	 */
-	//virtual void buildModule(const std::string &proto, const std::string &source);
-
-	/**
 	 * Returns number of inputs that should be set for this module to work
 	 * @return number of inputs
 	 */
@@ -171,14 +165,15 @@ protected:
 	 */
 	virtual void addInput(const ContactInfo &ci);
 	virtual void setOutputType( ContactInfo::CONTACT_TYPE type);
-	virtual void build(const NoiseMap *map);
+	virtual void build(NoiseMap *map);
+	virtual void buildHeader(NoiseMap *map) = 0;
+	virtual void buildSource(NoiseMap *map) = 0;
 	
 	MODULE_TYPE moduleType;
 	std::string moduleName;
 	int moduleId;
 	
 	const char *kernelSource;
-	const char *kernelProto;
 
 	ContactInfo::CONTACT_TYPE outputType;
 	std::vector<std::string> dependencies;
@@ -188,6 +183,7 @@ protected:
 	static int CurrentModuleId;
 	
 	friend class Library;
+	friend class NoiseMap;
 };
 
 }

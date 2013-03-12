@@ -34,6 +34,7 @@ class Generator;
 class BaseModule;
 class Output;
 class Noise;
+class Attribute;
 
 class NoiseMap
 {
@@ -50,7 +51,13 @@ public:
 
 	std::string getKernelCode() const { return kernelSource;}
 
+	void addDependency(const std::string &depName);
+	void addPrototype(const char* proto);
+	void addSource(const char *kernelSource);
+	void addAttribute(BaseModule *module, const Attribute &att);
+	
 protected:
+	
 	void processModule (BaseModule *module, std::string *proto, std::string *code, std::string *kernelCode);
 	void processDeps (BaseModule *module, std::string *proto, std::string *code);
 	void generateAttributes (BaseModule *module);
