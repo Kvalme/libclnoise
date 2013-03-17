@@ -1,5 +1,5 @@
 ;MODULE GradientNoise3D FUNCTION
-;PROTO float GradientNoise3D (float fx, float fy, float fz, int ix, int iy, int iz, int seed);
+;PROTO float GradientNoise3D (float fx, float fy, float fz, int ix, int iy, int iz, int seed)
 
 __constant int X_NOISE_GEN = 1619;
 __constant int Y_NOISE_GEN = 31337;

@@ -17,13 +17,16 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 
 #include "clnoise/generator.h"
 #include "clnoise/noisemap.h"
+#include "clnoise/error.h"
+
+
 
 using namespace CLNoise;
 
@@ -36,23 +39,61 @@ Generator::~Generator()
 {
 }
 
-void Generator::setProto(const char *proto)
-{
-	kernelProto = proto;
-}
 
 void Generator::buildHeader(NoiseMap *map)
 {
-	map->addPrototype(kernelProto);
-}
-
-void Generator::buildSource(NoiseMap *map)
-{
-	map->addSource(kernelSource);
-	
 	for (unsigned a = 0; a<attributes.size(); ++a)
 	{
 		map->addAttribute(this, attributes[a]);
 	}
+	
+	auto attributeMap = map->getAttributeMap(this);
+	
+	switch(outputType)
+	{
+		case ContactInfo::FLOAT:
+			proto.append("float ");
+			break;
+		case ContactInfo::RGBA:
+			proto.append("int ");
+			break;
+		default:
+			CL_THROW("Invalid attribute type");
+	}
+	
+	proto.append(moduleName);
+	proto.append("(float2 pos, __global __read_only int *intAtt, __global __read_only float *floatAtt)");
+	
+	map->addFunctionPrototype(proto);
 }
 
+void Generator::buildSource(NoiseMap *map)
+{
+	std::stringstream source;
+	
+	source<<proto<<"\n{\n";
+	
+	auto attributeMap = map->getAttributeMap(this);
+	
+	for (unsigned a = 0; a<attributes.size(); ++a)
+	{
+		Attribute &att = attributes[a];
+		auto amIt = attributeMap.find(att.getName());
+		
+		switch(att.getType())
+		{
+			case Attribute::FLOAT:
+				source<<"float "<<att.getName()<<" = floatAtt["<<amIt->second<<"];\n";
+				break;
+			case Attribute::INT:
+				source<<"int "<<att.getName()<<" = intAtt["<<amIt->second<<"];\n";
+				break;
+			default:
+				CL_THROW("Invalid attribute type");
+		}
+	}
+	
+	source<<kernelSource<<"}\n";
+	
+	map->addFunctionSource(source.str());
+}

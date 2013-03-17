@@ -52,19 +52,21 @@ public:
 	std::string getKernelCode() const { return kernelSource;}
 
 	void addDependency(const std::string &depName);
-	void addPrototype(const char* proto);
-	void addSource(const char *kernelSource);
+	void addFunctionPrototype(const std::string &proto);
+	void addFunctionSource(const std::string &kSource);
 	void addAttribute(BaseModule *module, const Attribute &att);
+	void addKernelCode(const std::string &code);
+	std::map<std::string, unsigned> getAttributeMap(CLNoise::BaseModule *module) const;
 	
 protected:
 	
-	void generateKernelCode (BaseModule *module, std::string *kernelCode);
 	void buildCode();
 
 	std::string kernelSource;
 	
 	std::string kernelSources;
 	std::string kernelProtos;
+	std::string kernelCode;
 	
 	Output *buildedOutput;
 	std::map<BaseModule *, std::map<std::string, unsigned> > attributeMap;

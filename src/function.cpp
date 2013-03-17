@@ -40,11 +40,11 @@ void Function::setProto(const char *proto)
 
 void Function::buildHeader(NoiseMap *map)
 {
-	map->addPrototype(kernelProto);
+	map->addFunctionPrototype(kernelProto);
 }
 
 void Function::buildSource(NoiseMap *map)
 {
-	map->addSource(kernelSource);
+	map->addFunctionSource(kernelSource);
 }
 

@@ -1,5 +1,5 @@
 ;MODULE MakeInt32Range FUNCTION
-;PROTO float MakeInt32Range (float n);
+;PROTO float MakeInt32Range (float n)
 
 float MakeInt32Range (float n)
 {

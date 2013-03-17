@@ -157,7 +157,9 @@ public:
 	 * @return constant reference to dependency list
 	 */
 	virtual const std::vector<std::string>& getDependencyList() const;
-
+	
+	virtual std::string getModuleCallName() const;
+	
 protected:
 	/**
 	 * Adds input to the set of existed inputs. Should be used carefully

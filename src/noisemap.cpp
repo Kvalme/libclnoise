@@ -66,6 +66,7 @@ void NoiseMap::build(Output *output)
 	floatAttributes.clear();
 	kernelSources.clear();
 	kernelProtos.clear();
+	kernelCode.clear();
 
 	output->build(this);
 
@@ -164,85 +165,20 @@ void NoiseMap::addDependency(const std::string &depName)
 	function->build(this);
 }
 
-void NoiseMap::addPrototype(const char *proto)
+void NoiseMap::addFunctionPrototype(const std::string &proto)
 {
 	kernelProtos.append(proto);
+	kernelProtos.append(";\n");
 }
 
-void NoiseMap::addSource(const char *kSource)
+void NoiseMap::addFunctionSource(const std::string &kSource)
 {
 	kernelSources.append(kSource);
 }
 
-void NoiseMap::generateKernelCode(BaseModule *module, std::string *kernelCode)
+void NoiseMap::addKernelCode(const std::string &code)
 {
-	if (module->getType() != BaseModule::OUTPUT)
-	{
-		kernelCode->append(std::string("    float ") + module->getName() + "Out = " + module->getName() + "( ");
-	}
-	else
-	{
-		kernelCode->append(std::string("    ") + module->getName() + "( ");
-	}
-	std::vector<std::string> args;
-
-	if (module->getType() == BaseModule::OUTPUT)
-	{
-		args.push_back("coord");
-	}
-	//Generator module - pass position as first argument
-	if (module->getInputCount() == 0 && module->getType() == BaseModule::GENERATOR)
-	{
-		args.push_back("position");
-	}
-
-	auto attributeMapEntryIt = attributeMap.find(module);
-	if (module->getAttributeCount() != 0 && attributeMapEntryIt == attributeMap.end()) CL_THROW("Unable to found attribute map for module");
-
-	for (Attribute att : module->getAttributes())
-	{
-		auto attInfoIt = attributeMapEntryIt->second.find(att.getName());
-		if (attInfoIt == attributeMapEntryIt->second.end()) CL_THROW("Unmapped attribute");
-
-		char value[256];
-
-		switch (att.getType())
-		{
-			case Attribute::FLOAT:
-				snprintf(value, 255, "floatAttributes[%d]", attInfoIt->second);
-				break;
-			case Attribute::INT:
-				snprintf(value, 255, "intAttributes[%d]", attInfoIt->second);
-				break;
-			default:
-				CL_THROW("Unknown attribute type");
-		}
-		args.push_back(value);
-	}
-
-	/*	for ( auto input : module->getInputs())
-		{
-			args.push_back(input->getName() + "Out");
-		}
-
-		for ( auto control : module->getControls())
-		{
-			args.push_back(control->getName() + "Out");
-		}
-
-		if (module->getType() == BaseModule::OUTPUT)
-		{
-			args.push_back("output");
-		}
-
-		bool isFirst = true;
-		for (auto str : args)
-		{
-			if (!isFirst) kernelCode->append(", ");
-			kernelCode->append(str);
-			isFirst = false;
-		}
-		kernelCode->append(");\n");*/
+	kernelCode.append(code);
 }
 
 void NoiseMap::buildCode()
@@ -255,13 +191,13 @@ void NoiseMap::buildCode()
 
 	kernelSource.append("__kernel void ");
 	kernelSource.append(buildedOutput->getName() + "Kernel");
-	kernelSource.append("(__write_only image2d_t output, __global __read_only int *intAttributes, __global __read_only float *floatAttributes)\n");
+	kernelSource.append("(__write_only image2d_t output, __global __read_only int *intAttr, __global __read_only float *floatAttr)\n");
 	kernelSource.append("{\n");
 	kernelSource.append("    int2 coord = (int2)(get_global_id(0), get_global_id(1));\n");
 	kernelSource.append("    int2 size = (int2)(get_global_size(0), get_global_size(1));\n");
-	kernelSource.append("    float2 position = (float2)(coord.x / (float)size.x, coord.y / (float)size.y) - 0.5;\n");
+	kernelSource.append("    float2 pos = (float2)(coord.x / (float)size.x, coord.y / (float)size.y) - 0.5;\n\n");
 
-//	kernelSource.append(kernelCode);
+	kernelSource.append(kernelCode);
 	kernelSource.append("\n");
 
 	kernelSource.append("}\n");
@@ -425,5 +361,12 @@ void NoiseMap::transferData()
 	{
 		CL_THROW(std::string("Unable to read buffer!") + getCLError(err));
 	}
+}
+
+std::map< std::string, unsigned int > NoiseMap::getAttributeMap(BaseModule *module) const
+{
+	auto it = attributeMap.find(module);
+	if (it == attributeMap.end()) CL_THROW("Requested attribute map for invalid module");
+	return it->second;
 }
 

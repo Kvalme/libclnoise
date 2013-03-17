@@ -1,7 +1,7 @@
 ;MODULE GradientCoherentNoise3D FUNCTION
 ;DEP GradientNoise3D
 ;DEP SCurve5
-;PROTO float GradientCoherentNoise3D (float x, float y, float z, int seed);
+;PROTO float GradientCoherentNoise3D (float x, float y, float z, int seed)
 
 float GradientCoherentNoise3D (float x, float y, float z, int seed)
 {

@@ -7,20 +7,17 @@
 ;DEP GradientCoherentNoise3D
 ;DEP MakeInt32Range
 ;OUTTYPE FLOAT
-;PROTO float Perlin( float2 pos, float frequency, float lacunarity, int octaveCount, float persistence, int seed);
 
-float Perlin( float2 pos, float frequency, float lacunarity, int octaveCount, float persistence, int seed)
-{
   float OUTPUT = 0.0;
   float signal = 0.0;
   float curPersistence = 1.0;
   float nx, ny, nz;
 
-  float x = pos.x * freq;
-  float y = 1.0 * freq;
-  float z = pos.y * freq;
+  float x = pos.x * frequency;
+  float y = 1.0 * frequency;
+  float z = pos.y * frequency;
 
-  for (int curOctave = 0; curOctave < octave; curOctave++) {
+  for (int curOctave = 0; curOctave < octaveCount; curOctave++) {
 
     // Make sure that these floating-point values have the same range as a 32-
     // bit integer so that we can pass them to the coherent-noise functions.
@@ -35,13 +32,12 @@ float Perlin( float2 pos, float frequency, float lacunarity, int octaveCount, fl
     OUTPUT += signal * curPersistence;
 
     // Prepare the next octave.
-    x *= lac;
-    y *= lac;
-    z *= lac;
-    curPersistence *= pers;
+    x *= lacunarity;
+    y *= lacunarity;
+    z *= lacunarity;
+    curPersistence *= persistence;
   }
 
   return OUTPUT;
-}
 
 ;ENDMODULE

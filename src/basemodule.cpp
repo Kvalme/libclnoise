@@ -173,3 +173,8 @@ void BaseModule::build(NoiseMap *map)
 	buildSource(map);
 }
 
+std::string BaseModule::getModuleCallName() const
+{
+	return moduleName;
+}
+

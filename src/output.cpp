@@ -20,6 +20,8 @@
 
 #include "clnoise/output.h"
 #include "clnoise/noise.h"
+#include "clnoise/error.h"
+#include "noisemap.h"
 
 using namespace CLNoise;
 
@@ -55,12 +57,28 @@ void Output::setImageDimension ( unsigned int w, unsigned int h )
     height = h;
 }
 
-void Output::buildHeader(NoiseMap *map)
+void Output::buildHeader(NoiseMap*)
 {
-	
 }
 
 void Output::buildSource(NoiseMap *map)
 {
-
+	std::string source;
+	
+	for(unsigned a = 0; a < inputs.size(); ++a)
+	{
+		ContactInfo &c = inputs[a];
+		if (c.input == nullptr) CL_THROW("NULL provided as input");
+		std::string moduleName = c.input->getModuleCallName();
+		
+		source.append("#define ");
+		source.append(c.name);
+		source.append(" ");
+		source.append(moduleName);
+		source.append("(pos, intAttr, floatAttr)\n");
+	}
+	
+	source.append(kernelSource);
+	
+	map->addKernelCode(source);
 }
