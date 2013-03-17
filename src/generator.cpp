@@ -42,23 +42,26 @@ Generator::~Generator()
 
 void Generator::buildHeader(NoiseMap *map)
 {
+	proto.clear();
 	for (unsigned a = 0; a<attributes.size(); ++a)
 	{
 		map->addAttribute(this, attributes[a]);
 	}
-	
-	auto attributeMap = map->getAttributeMap(this);
-	
-	switch(outputType)
+	if (!attributes.empty())
 	{
-		case ContactInfo::FLOAT:
-			proto.append("float ");
-			break;
-		case ContactInfo::RGBA:
-			proto.append("int ");
-			break;
-		default:
-			CL_THROW("Invalid attribute type");
+		auto attributeMap = map->getAttributeMap(this);
+		
+		switch(outputType)
+		{
+			case ContactInfo::FLOAT:
+				proto.append("float ");
+				break;
+			case ContactInfo::RGBA:
+				proto.append("int ");
+				break;
+			default:
+				CL_THROW("Invalid attribute type");
+		}
 	}
 	
 	proto.append(moduleName);
@@ -73,26 +76,28 @@ void Generator::buildSource(NoiseMap *map)
 	
 	source<<proto<<"\n{\n";
 	
-	auto attributeMap = map->getAttributeMap(this);
-	
-	for (unsigned a = 0; a<attributes.size(); ++a)
+	if (!attributes.empty())
 	{
-		Attribute &att = attributes[a];
-		auto amIt = attributeMap.find(att.getName());
+		auto attributeMap = map->getAttributeMap(this);
 		
-		switch(att.getType())
+		for (unsigned a = 0; a<attributes.size(); ++a)
 		{
-			case Attribute::FLOAT:
-				source<<"float "<<att.getName()<<" = floatAtt["<<amIt->second<<"];\n";
-				break;
-			case Attribute::INT:
-				source<<"int "<<att.getName()<<" = intAtt["<<amIt->second<<"];\n";
-				break;
-			default:
-				CL_THROW("Invalid attribute type");
+			Attribute &att = attributes[a];
+			auto amIt = attributeMap.find(att.getName());
+			
+			switch(att.getType())
+			{
+				case Attribute::FLOAT:
+					source<<"float "<<att.getName()<<" = floatAtt["<<amIt->second<<"];\n";
+					break;
+				case Attribute::INT:
+					source<<"int "<<att.getName()<<" = intAtt["<<amIt->second<<"];\n";
+					break;
+				default:
+					CL_THROW("Invalid attribute type");
+			}
 		}
 	}
-	
 	source<<kernelSource<<"}\n";
 	
 	map->addFunctionSource(source.str());
