@@ -26,8 +26,6 @@
 #include "clnoise/noisemap.h"
 #include "clnoise/error.h"
 
-
-
 using namespace CLNoise;
 
 Generator::Generator(const std::string &mName) :
@@ -47,21 +45,17 @@ void Generator::buildHeader(NoiseMap *map)
 	{
 		map->addAttribute(this, attributes[a]);
 	}
-	if (!attributes.empty())
+	
+	switch(outputType)
 	{
-		auto attributeMap = map->getAttributeMap(this);
-		
-		switch(outputType)
-		{
-			case ContactInfo::FLOAT:
-				proto.append("float ");
-				break;
-			case ContactInfo::RGBA:
-				proto.append("int ");
-				break;
-			default:
-				CL_THROW("Invalid attribute type");
-		}
+		case ContactInfo::FLOAT:
+			proto.append("float ");
+			break;
+		case ContactInfo::RGBA:
+			proto.append("int ");
+			break;
+		default:
+			CL_THROW("Invalid attribute type");
 	}
 	
 	proto.append(moduleName);

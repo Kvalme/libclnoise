@@ -278,7 +278,7 @@ void NoiseMap::allocateResources()
 		if (err != CL_SUCCESS) CL_THROW("Unable to create floatAttributesBuffer");
 	}
 }
-
+#include <iostream>
 void NoiseMap::buildKernel()
 {
 	if (clProgram) clReleaseProgram(clProgram);
@@ -292,10 +292,22 @@ void NoiseMap::buildKernel()
 	err = clBuildProgram(clProgram, 0, NULL, NULL, NULL, NULL);
 	if (err != CL_SUCCESS)
 	{
-		size_t len;
-		char buffer[2048];
-		clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-		CL_THROW(std::string("Failed to build program:\n") + getCLError(err) + buffer);
+		size_t len = 0;
+		char *buffer;
+		clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, 0, 0, &len);
+		buffer = new char[len+1];
+		cl_int err1 = clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, len+1, buffer, 0);
+		if(err1 != CL_SUCCESS)
+		{
+			char buf[2048];
+			snprintf(buf, 2048, "Double error!\nFailed to build program: %s\nFailed to get reason of failure: %s\n", 
+				 getCLError(err), getCLError(err1));
+			CL_THROW(buffer);
+		}
+		else
+		{
+			CL_THROW(std::string("Failed to build program:\n") + getCLError(err) + "\n" + buffer);
+		}
 	}
 
 	std::string moduleName(buildedOutput->getName());

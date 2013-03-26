@@ -25,6 +25,7 @@
 #include "clnoise/generator.h"
 #include "clnoise/output.h"
 #include "clnoise/noisemap.h"
+#include "clnoise/filter.h"
 #include "timer.h"
 
 using namespace CLNoise;
@@ -34,13 +35,15 @@ int main(int argc, char *argv[])
 	{
 		Noise noisecl;
 		noisecl.initCLContext();
-		Generator *source = dynamic_cast<Generator *>(noisecl.createModule("Perlin", BaseModule::GENERATOR));
-		Output *output = dynamic_cast<Output *>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
+		Generator *source = static_cast<Generator *>(noisecl.createModule("Perlin", BaseModule::GENERATOR));
+		Filter *filter = static_cast<Filter*>(noisecl.createModule("ABS", BaseModule::FILTER));
+		Output *output = static_cast<Output *>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
 		if (!source) CL_THROW("Unable to create \"Perlin\" module");
 		if (!output) CL_THROW("Unable to create \"PlaneMap\" module");
 
 
-		output->setInput(0, source);
+		filter->setInput(0, source);
+		output->setInput(0, filter);
 		output->setImageDimension(256, 256);
 
 		NoiseMap noiseMap(noisecl);

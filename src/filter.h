@@ -30,6 +30,13 @@ class Filter : public BaseModule
 public:
 	Filter(const std::string &mName);
 	virtual ~Filter();
+
+private:
+	virtual void buildHeader(NoiseMap *map);
+	virtual void buildSource(NoiseMap *map);
+	
+	std::string proto;
+	
 };
 
 

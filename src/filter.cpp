@@ -16,13 +16,15 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#include <sstream>
 
 #include "clnoise/filter.h"
+#include "clnoise/noisemap.h"
+#include "clnoise/error.h"
 
 using namespace CLNoise;
 
-Filter::Filter(const std::string &mName): 
+Filter::Filter(const std::string &mName):
 	BaseModule(mName, FILTER)
 {
 }
@@ -31,3 +33,73 @@ Filter::~Filter()
 {
 
 }
+
+void Filter::buildHeader(NoiseMap *map)
+{
+	proto.clear();
+	
+	for (unsigned a = 0; a < attributes.size(); ++a)
+	{
+		map->addAttribute(this, attributes[a]);
+	}
+	
+	switch (outputType)
+	{
+		case ContactInfo::FLOAT:
+			proto.append("float ");
+			break;
+		case ContactInfo::RGBA:
+			proto.append("int ");
+			break;
+		default:
+			CL_THROW("Invalid attribute type");
+	}
+
+	proto.append(moduleName);
+	proto.append("(float2 pos, __global __read_only int *intAtt, __global __read_only float *floatAtt)");
+
+	map->addFunctionPrototype(proto);
+
+}
+
+void Filter::buildSource(NoiseMap *map)
+{
+	std::stringstream source;
+
+	source << proto << "\n{\n";
+
+	if (!attributes.empty())
+	{
+		auto attributeMap = map->getAttributeMap(this);
+
+		for (unsigned a = 0; a < attributes.size(); ++a)
+		{
+			Attribute &att = attributes[a];
+			auto amIt = attributeMap.find(att.getName());
+
+			switch (att.getType())
+			{
+				case Attribute::FLOAT:
+					source << "float " << att.getName() << " = floatAtt[" << amIt->second << "];\n";
+					break;
+				case Attribute::INT:
+					source << "int " << att.getName() << " = intAtt[" << amIt->second << "];\n";
+					break;
+				default:
+					CL_THROW("Invalid attribute type");
+			}
+		}
+	}
+	for (unsigned a = 0; a < inputs.size(); ++a)
+	{
+		ContactInfo &c = inputs[a];
+		if (c.input == nullptr) CL_THROW("NULL provided as input");
+		std::string moduleName = c.input->getModuleCallName();
+
+		source<<"#define "<<c.name <<" "<<moduleName<<"(pos, intAtt, floatAtt)\n";
+	}
+	source << kernelSource << "}\n";
+
+	map->addFunctionSource(source.str());
+}
+

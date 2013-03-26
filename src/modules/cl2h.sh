@@ -22,9 +22,9 @@ function processModuleLine
     elif [ "$3" == "FUNCTION" ]
     then
 	echo "Function *"${2}"_Mod = new Function(\"$2\");" >> $SUM_OUT
-    elif [ "$3" == "MODIFIER" ]
+    elif [ "$3" == "FILTER" ]
     then
-	echo "Modifier *"${2}"_Mod = new Filter(\"$2\");" >> $SUM_OUT
+	echo "Filter *"${2}"_Mod = new Filter(\"$2\");" >> $SUM_OUT
     fi
     
     echo "${2}_Mod->setModuleSource(${2}_Src);" >> $SUM_OUT
