@@ -26,6 +26,7 @@
 #include "clnoise/filter.h"
 #include "clnoise/generator.h"
 
+#include "clnoise/gradientattribute.h"
 
 #include "modules/modules_headers.h"
 

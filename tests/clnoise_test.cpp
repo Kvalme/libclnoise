@@ -26,7 +26,9 @@
 #include "clnoise/output.h"
 #include "clnoise/noisemap.h"
 #include "clnoise/filter.h"
+#include "clnoise/gradientattribute.h"
 #include "timer.h"
+
 
 using namespace CLNoise;
 int main(int argc, char *argv[])
@@ -38,12 +40,27 @@ int main(int argc, char *argv[])
 		Generator *source = static_cast<Generator *>(noisecl.createModule("Perlin", BaseModule::GENERATOR));
 		Filter *filter = static_cast<Filter*>(noisecl.createModule("ABS", BaseModule::FILTER));
 		Output *output = static_cast<Output *>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
+		Filter *csc = static_cast<Filter*>(noisecl.createModule("gradient", BaseModule::FILTER));
 		if (!source) CL_THROW("Unable to create \"Perlin\" module");
 		if (!output) CL_THROW("Unable to create \"PlaneMap\" module");
 
-
+		Attribute att = csc->getAttribute(0);
+		GradientAttribute gradAtt(att.getName());
+		
+		gradAtt.addPoint(-1.00f, GradientAttribute::GradientPoint(0.12, 0.25, 0.50, 1.00));
+		gradAtt.addPoint(-0.20f, GradientAttribute::GradientPoint(0.25, 0.37, 0.50, 1.00));
+		gradAtt.addPoint(-0.04f, GradientAttribute::GradientPoint(0.75, 0.75, 0.75, 1.00));
+		gradAtt.addPoint( 0.00f, GradientAttribute::GradientPoint(0.00, 0.75, 0.50, 1.00));
+		gradAtt.addPoint( 0.25f, GradientAttribute::GradientPoint(0.75, 0.75, 0.00, 1.00));
+		gradAtt.addPoint( 0.50f, GradientAttribute::GradientPoint(0.62, 0.37, 0.25, 1.00));
+		gradAtt.addPoint( 0.75f, GradientAttribute::GradientPoint(0.50, 1.00, 1.00, 1.00));
+		gradAtt.addPoint( 1.00f, GradientAttribute::GradientPoint(1.00, 1.00, 1.00, 1.00));
+		
+		csc->setAttribute(gradAtt);
+		
 		filter->setInput(0, source);
-		output->setInput(0, filter);
+		csc->setInput(0, filter);
+		output->setInput(0, csc);
 		output->setImageDimension(256, 256);
 
 		NoiseMap noiseMap(noisecl);

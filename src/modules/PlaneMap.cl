@@ -1,8 +1,7 @@
 ;MODULE PlaneMap OUTPUT
 ;OUTTYPE RGBA
-;INPUT NOISE_VALUE FLOAT
+;INPUT COLOR RGBA
 
-    uint color = ((NOISE_VALUE + 1.0f)/2.0f) * 255.0f;
-    write_imageui(output, coord, (uint4)(color, color, color, 255));
+    write_imageui(output, coord, COLOR);
 
 ;ENDMODULE

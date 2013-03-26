@@ -28,87 +28,91 @@ namespace CLNoise
 class Attribute
 {
 public:
-    enum ATTRIBUTE_TYPE
-    {
-        INVALID = -1,
-        INT     = 0,
-        FLOAT   = 1,
-    };
-    Attribute() : type ( INVALID ) {};
-    explicit Attribute ( const std::string &name, int val, int min, int max ) :
-        type ( INT ), attributeName ( name )
-    {
-        intValue[0] = val;
-        intValue[1] = min;
-        intValue[2] = max;
-        floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
-    };
-    explicit Attribute ( const std::string &name, float val, int min, int max ) :
-        type ( FLOAT ), attributeName ( name )
-    {
-        floatValue[0] = val;
-        floatValue[1] = min;
-        floatValue[2] = max;
-        intValue[0] = intValue[1] = intValue[2] = -1;
-    };
+	enum ATTRIBUTE_TYPE
+	{
+		INVALID = -1,
+		INT     = 0,
+		FLOAT   = 1,
+		GRADIENT = 2
+	};
 
-    void setValue ( int val )
-    {
-        type = INT;
-        intValue[0] = val;
-    }
+	Attribute() : type(INVALID) {};
+	explicit Attribute(const std::string &name, int val, int min, int max) :
+		type(INT), attributeName(name)
+	{
+		intValue[0] = val;
+		intValue[1] = min;
+		intValue[2] = max;
+		floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
+	};
+	explicit Attribute(const std::string &name, float val, int min, int max) :
+		type(FLOAT), attributeName(name)
+	{
+		floatValue[0] = val;
+		floatValue[1] = min;
+		floatValue[2] = max;
+		intValue[0] = intValue[1] = intValue[2] = -1;
+	};
 
-    void setValue ( float val )
-    {
-        type = FLOAT;
-        floatValue[0] = val;
-    }
-    int getIntMin() const
-    {
-        if ( type != INT ) CL_THROW ( "Invalid type requested" );
-        return intValue[1];
-    }
-    int getIntMax() const
-    {
-        if ( type != INT ) CL_THROW ( "Invalid type requested" );
-        return intValue[2];
-    }
-    int getInt() const
-    {
-        if ( type != INT ) CL_THROW ( "Invalid type requested" );
-        return intValue[0];
-    }
+	void setValue(int val)
+	{
+		type = INT;
+		intValue[0] = val;
+	}
 
-    float getFloat() const
-    {
-        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
-        return floatValue[0];
-    }
-    float getFloatMin() const
-    {
-        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
-        return floatValue[1];
-    }
-    float getFloatMax() const
-    {
-        if ( type != FLOAT ) CL_THROW ( "Invalid type requested" );
-        return floatValue[2];
-    }
+	void setValue(float val)
+	{
+		type = FLOAT;
+		floatValue[0] = val;
+	}
+	int getIntMin() const
+	{
+		if (type != INT) CL_THROW("Invalid type requested");
+		return intValue[1];
+	}
+	int getIntMax() const
+	{
+		if (type != INT) CL_THROW("Invalid type requested");
+		return intValue[2];
+	}
+	int getInt() const
+	{
+		if (type != INT) CL_THROW("Invalid type requested");
+		return intValue[0];
+	}
 
-    ATTRIBUTE_TYPE getType() const
-    {
-        return type;
-    }
+	float getFloat() const
+	{
+		if (type != FLOAT) CL_THROW("Invalid type requested");
+		return floatValue[0];
+	}
+	float getFloatMin() const
+	{
+		if (type != FLOAT) CL_THROW("Invalid type requested");
+		return floatValue[1];
+	}
+	float getFloatMax() const
+	{
+		if (type != FLOAT) CL_THROW("Invalid type requested");
+		return floatValue[2];
+	}
 
-    const std::string &getName() const
-    {
-        return attributeName;
-    }
+	virtual ATTRIBUTE_TYPE getType() const
+	{
+		return type;
+	}
 
-private:
-    int intValue[3];
-    float floatValue[3];
-    ATTRIBUTE_TYPE type;
-    std::string attributeName;
+	virtual const std::string &getName() const
+	{
+		return attributeName;
+	}
+	
+	virtual std::string buildCode(int position) const;
+
+protected:
+	int intValue[3];
+	float floatValue[3];
+	ATTRIBUTE_TYPE type;
+	std::string attributeName;
 };
 }

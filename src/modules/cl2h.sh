@@ -58,6 +58,9 @@ function processArgLine
     elif [ "$3" == "int" ]
     then
         echo "${CurModuleObjectName}->setAttribute($2, Attribute(\"$4\", ${5}, ${6}, ${7}));" >> $SUM_OUT
+    elif [ "$3" == "gradient" ]
+    then
+	echo "${CurModuleObjectName}->setAttribute($2, GradientAttribute(\"$4\"));" >> $SUM_OUT
     fi
 
 }
