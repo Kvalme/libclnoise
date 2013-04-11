@@ -19,9 +19,7 @@
 
 #pragma once
 
-
 #include <string>
-#include "clnoise/error.h"
 
 namespace CLNoise
 {
@@ -30,86 +28,39 @@ class Attribute
 public:
 	enum ATTRIBUTE_TYPE
 	{
-		INVALID = -1,
-		INT     = 0,
-		FLOAT   = 1,
-		GRADIENT = 2
+	        INVALID = -1,
+	        INT     = 0,
+	        FLOAT   = 1,
+	        GRADIENT = 2
 	};
 
 	Attribute() : type(INVALID) {};
-	explicit Attribute(const std::string &name, int val, int min, int max) :
-		type(INT), attributeName(name)
-	{
-		intValue[0] = val;
-		intValue[1] = min;
-		intValue[2] = max;
-		floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
-	};
-	explicit Attribute(const std::string &name, float val, int min, int max) :
-		type(FLOAT), attributeName(name)
-	{
-		floatValue[0] = val;
-		floatValue[1] = min;
-		floatValue[2] = max;
-		intValue[0] = intValue[1] = intValue[2] = -1;
-	};
+	explicit Attribute(const std::string &name, int val, int min, int max);
+	explicit Attribute(const std::string &name, float val, int min, int max);
+	virtual ~Attribute() {};
 
-	void setValue(int val)
-	{
-		type = INT;
-		intValue[0] = val;
-	}
+	void setValue(int val);
+	void setValue(float val);
 
-	void setValue(float val)
-	{
-		type = FLOAT;
-		floatValue[0] = val;
-	}
-	int getIntMin() const
-	{
-		if (type != INT) CL_THROW("Invalid type requested");
-		return intValue[1];
-	}
-	int getIntMax() const
-	{
-		if (type != INT) CL_THROW("Invalid type requested");
-		return intValue[2];
-	}
-	int getInt() const
-	{
-		if (type != INT) CL_THROW("Invalid type requested");
-		return intValue[0];
-	}
+	int getIntMin() const;
+	int getIntMax() const;
+	int getInt() const;
 
-	float getFloat() const
-	{
-		if (type != FLOAT) CL_THROW("Invalid type requested");
-		return floatValue[0];
-	}
-	float getFloatMin() const
-	{
-		if (type != FLOAT) CL_THROW("Invalid type requested");
-		return floatValue[1];
-	}
-	float getFloatMax() const
-	{
-		if (type != FLOAT) CL_THROW("Invalid type requested");
-		return floatValue[2];
-	}
+	float getFloat() const;
+	float getFloatMin() const;
+	float getFloatMax() const;
 
-	virtual ATTRIBUTE_TYPE getType() const
-	{
-		return type;
-	}
+	virtual ATTRIBUTE_TYPE getType() const;
 
-	virtual const std::string &getName() const
-	{
-		return attributeName;
-	}
-	
+	virtual const std::string &getName() const;
+
 	virtual std::string buildCode(int position) const;
 
+
 protected:
+	friend class NoiseMap;
+	virtual void updateValue(unsigned int pos, float *floatAtt, int *intAtt, unsigned int floatAttSize, unsigned int intAttSize) const;
+
 	int intValue[3];
 	float floatValue[3];
 	ATTRIBUTE_TYPE type;

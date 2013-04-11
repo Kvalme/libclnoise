@@ -119,7 +119,7 @@ public:
 	 * Returned set shouldn't be modified.
 	 * @return constant reference to attributes information.
 	 */
-	virtual const std::vector<Attribute> &getAttributes() const;
+	virtual const std::vector<Attribute*> &getAttributes();
 
 	/**
 	 * Connects given input slot to provided module. If any other module already connected to the requested slot it will be overwritten.
@@ -133,7 +133,7 @@ public:
 	/**
 	 * Sets attribute. Attribute will be found using Attribute::name.
 	 * If no such attribute exists it will be added to the end of the attribute list. This can be used to create custom modules.
-	 * If attribute can be found in existed attribute set - only attribute value will be set.
+	 * If attribute can be found in existed attribute set - it will be replaced with new one
 	 * @param attribute attribute description
 	 */
 	virtual void setAttribute(const Attribute &attribute);
@@ -171,6 +171,8 @@ protected:
 	virtual void buildHeader(NoiseMap *map) = 0;
 	virtual void buildSource(NoiseMap *map) = 0;
 	
+	Attribute* createAttribute(const Attribute &attribute);
+	
 	MODULE_TYPE moduleType;
 	std::string moduleName;
 	int moduleId;
@@ -179,7 +181,7 @@ protected:
 
 	ContactInfo::CONTACT_TYPE outputType;
 	std::vector<std::string> dependencies;
-	std::vector<Attribute> attributes;
+	std::vector<Attribute*> attributes;
 	std::vector<ContactInfo> inputs;
 
 	static int CurrentModuleId;

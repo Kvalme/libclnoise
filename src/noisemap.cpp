@@ -25,6 +25,7 @@
 #include "clnoise/attribute.h"
 #include "clnoise/noise.h"
 #include "clnoise/filter.h"
+#include "clnoise/gradientattribute.h"
 
 #include "library.h"
 
@@ -38,7 +39,9 @@ NoiseMap::NoiseMap(const Noise &noise) :
 	intAttributesBuffer(nullptr),
 	floatAttributesBuffer(nullptr),
 	clProgram(nullptr),
-	clKernel(nullptr)
+	clKernel(nullptr),
+	nextFloatAttPosition(0),
+	nextIntAttPosition(0)
 {
 
 }
@@ -71,7 +74,7 @@ void NoiseMap::build(Output *output)
 	output->build(this);
 
 	buildedOutput = output;
-	
+
 	buildCode();
 }
 
@@ -79,29 +82,17 @@ void NoiseMap::updateAttributes()
 {
 	for (auto moduleIt : attributeMap)
 	{
-		for (Attribute attribute : moduleIt.first->getAttributes())
+		for (Attribute *attribute : moduleIt.first->getAttributes())
 		{
-			auto attIt = moduleIt.second.find(attribute.getName());
-			if (attIt == moduleIt.second.end()) CL_THROW(std::string("Attribute \"") + attribute.getName() + "\" not listed in attribute map.");
+			auto attIt = moduleIt.second.find(attribute->getName());
+			if (attIt == moduleIt.second.end()) CL_THROW(std::string("Attribute \"") + attribute->getName() + "\" not listed in attribute map.");
 
-			switch (attribute.getType())
-			{
-				case Attribute::FLOAT:
-					if (floatAttributes.size() <= attIt->second) CL_THROW("Attribute position is out of bounds");
-					floatAttributes[attIt->second] = attribute.getFloat();
-					break;
-				case Attribute::INT:
-					if (intAttributes.size() <= attIt->second) CL_THROW("Attribute position is out of bounds");
-					intAttributes[attIt->second] = attribute.getInt();
-					break;
-				default:
-					CL_THROW("Invalid module attribute type");
-			}
+			attribute->updateValue(attIt->second, floatAttributes.data(), intAttributes.data(), floatAttributes.size(), intAttributes.size());
 		}
 	}
 }
 
-void NoiseMap::addAttribute(BaseModule *module, const Attribute &att)
+void NoiseMap::addAttribute(BaseModule *module, const Attribute *att)
 {
 	if (module->getType() == BaseModule::FUNCTION) CL_THROW("Modules of type \"Function\" can't have attributes");
 
@@ -114,41 +105,37 @@ void NoiseMap::addAttribute(BaseModule *module, const Attribute &att)
 	unsigned position;
 
 	//try to find attribute in existed set
-	auto attIt = attributeMapEntryIt->second.find(att.getName());
+	auto attIt = attributeMapEntryIt->second.find(att->getName());
 	if (attIt != attributeMapEntryIt->second.end())
 	{
 		position = attIt->second;
-		switch (att.getType())
-		{
-			case Attribute::FLOAT:
-				if (floatAttributes.size() <= position) CL_THROW("Attribute position is out of bounds");
-				floatAttributes[position] = att.getFloat();
-				break;
-			case Attribute::INT:
-				if (intAttributes.size() <= position) CL_THROW("Attribute position is out of bounds");
-				intAttributes[position] = att.getInt();
-				break;
-			default:
-				CL_THROW("Unknown attribute type");
-		}
 	}
 	else
 	{
-		switch (att.getType())
+		switch (att->getType())
 		{
 			case Attribute::FLOAT:
-				position = floatAttributes.size();
-				floatAttributes.push_back(att.getFloat());
+				floatAttributes.resize(floatAttributes.size() + 1);
+				position = nextFloatAttPosition++;
 				break;
 			case Attribute::INT:
-				position = intAttributes.size();
-				intAttributes.push_back(att.getInt());
+				intAttributes.resize(floatAttributes.size() + 1);
+				position = nextIntAttPosition++;
 				break;
+			case Attribute::GRADIENT:
+			{
+				position = nextFloatAttPosition++;
+				nextFloatAttPosition += MAX_POINTS_PER_GRADIENT * 5 + 1; //POS, R, G, B, A
+				floatAttributes.resize(nextFloatAttPosition);
+				break;
+			}
 			default:
 				CL_THROW("Unknown attribute type");
 		}
-		attributeMapEntryIt->second.insert(std::make_pair(att.getName(), position));
+		attributeMapEntryIt->second.insert(std::make_pair(att->getName(), position));
 	}
+
+	att->updateValue(position, floatAttributes.data(), intAttributes.data(), floatAttributes.size(), intAttributes.size());
 }
 
 void NoiseMap::addDependency(const std::string &depName)
@@ -278,7 +265,7 @@ void NoiseMap::allocateResources()
 		if (err != CL_SUCCESS) CL_THROW("Unable to create floatAttributesBuffer");
 	}
 }
-#include <iostream>
+
 void NoiseMap::buildKernel()
 {
 	if (clProgram) clReleaseProgram(clProgram);
@@ -295,13 +282,13 @@ void NoiseMap::buildKernel()
 		size_t len = 0;
 		char *buffer;
 		clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, 0, 0, &len);
-		buffer = new char[len+1];
-		cl_int err1 = clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, len+1, buffer, 0);
-		if(err1 != CL_SUCCESS)
+		buffer = new char[len + 1];
+		cl_int err1 = clGetProgramBuildInfo(clProgram, clNoise.getCLDevice(), CL_PROGRAM_BUILD_LOG, len + 1, buffer, 0);
+		if (err1 != CL_SUCCESS)
 		{
 			char buf[2048];
-			snprintf(buf, 2048, "Double error!\nFailed to build program: %s\nFailed to get reason of failure: %s\n", 
-				 getCLError(err), getCLError(err1));
+			snprintf(buf, 2048, "Double error!\nFailed to build program: %s\nFailed to get reason of failure: %s\n",
+			         getCLError(err), getCLError(err1));
 			CL_THROW(buffer);
 		}
 		else

@@ -54,7 +54,7 @@ public:
 	void addDependency(const std::string &depName);
 	void addFunctionPrototype(const std::string &proto);
 	void addFunctionSource(const std::string &kSource);
-	void addAttribute(BaseModule *module, const Attribute &att);
+	void addAttribute(BaseModule *module, const Attribute *att);
 	void addKernelCode(const std::string &code);
 	std::map<std::string, unsigned> getAttributeMap(CLNoise::BaseModule *module) const;
 	
@@ -84,6 +84,9 @@ protected:
 
 	cl_program clProgram;
 	cl_kernel clKernel;
+	
+	unsigned int nextFloatAttPosition;
+	unsigned int nextIntAttPosition;
 };
 
 }

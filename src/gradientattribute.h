@@ -24,6 +24,10 @@
 #include <map>
 #include "clnoise/attribute.h"
 
+#ifndef MAX_POINTS_PER_GRADIENT
+#define MAX_POINTS_PER_GRADIENT 50
+#endif
+
 namespace CLNoise
 {
 class GradientAttribute : public Attribute
@@ -41,10 +45,14 @@ public:
 	GradientAttribute(const std::string &name);
 	
 	void addPoint(float pos, GradientPoint point);
+	bool getPoint(int id, float *pos, CLNoise::GradientAttribute::GradientPoint *point) const;
+	int getPointCount() const;
+	virtual std::string buildCode(int position) const;
 
-
+protected:
+	virtual void updateValue(unsigned int pos, float *floatAtt, int *intAtt, unsigned int floatAttSize, unsigned int intAttSize) const;
+	
 private:
-	ATTRIBUTE_TYPE type;
 	std::map<float, GradientPoint> points;
 };
 }

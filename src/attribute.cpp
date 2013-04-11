@@ -27,7 +27,7 @@ using namespace CLNoise;
 std::string Attribute::buildCode(int position) const
 {
 	char buf[2048];
-	
+
 	switch (type)
 	{
 		case Attribute::FLOAT:
@@ -40,4 +40,92 @@ std::string Attribute::buildCode(int position) const
 			CL_THROW("Invalid attribute type");
 	}
 	return buf;
+}
+
+Attribute::Attribute(const std::string &name, int val, int min, int max) :
+	type(INT), attributeName(name)
+{
+	intValue[0] = val;
+	intValue[1] = min;
+	intValue[2] = max;
+	floatValue[0] = floatValue[1] = floatValue[2] = -1.0f;
+};
+Attribute::Attribute(const std::string &name, float val, int min, int max) :
+	type(FLOAT), attributeName(name)
+{
+	floatValue[0] = val;
+	floatValue[1] = min;
+	floatValue[2] = max;
+	intValue[0] = intValue[1] = intValue[2] = -1;
+};
+
+void Attribute::setValue(int val)
+{
+	type = INT;
+	intValue[0] = val;
+}
+
+void Attribute::setValue(float val)
+{
+	type = FLOAT;
+	floatValue[0] = val;
+}
+int Attribute::getIntMin() const
+{
+	if (type != INT) CL_THROW("Invalid type requested");
+	return intValue[1];
+}
+int Attribute::getIntMax() const
+{
+	if (type != INT) CL_THROW("Invalid type requested");
+	return intValue[2];
+}
+int Attribute::getInt() const
+{
+	if (type != INT) CL_THROW("Invalid type requested");
+	return intValue[0];
+}
+
+float Attribute::getFloat() const
+{
+	if (type != FLOAT) CL_THROW("Invalid type requested");
+	return floatValue[0];
+}
+float Attribute::getFloatMin() const
+{
+	if (type != FLOAT) CL_THROW("Invalid type requested");
+	return floatValue[1];
+}
+float Attribute::getFloatMax() const
+{
+	if (type != FLOAT) CL_THROW("Invalid type requested");
+	return floatValue[2];
+}
+
+Attribute::ATTRIBUTE_TYPE Attribute::getType() const
+{
+	return type;
+}
+
+const std::string &Attribute::getName() const
+{
+	return attributeName;
+}
+
+void Attribute::updateValue(unsigned int pos, float *floatAtt, int *intAtt, unsigned int floatAttSize, unsigned int intAttSize) const
+{
+	if ( type == FLOAT)
+	{
+		if (pos >= floatAttSize) CL_THROW("Attribute position is out of bounds");
+		floatAtt[pos] = floatValue[0];
+	}
+	else if ( type == INT)
+	{
+		if (pos >= intAttSize) CL_THROW("Attribute position is out of bounds");
+		intAtt[pos] = intValue[0];
+	}
+	else
+	{
+		CL_THROW("Invalid attribute type");
+	}
 }

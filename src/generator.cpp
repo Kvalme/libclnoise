@@ -76,20 +76,9 @@ void Generator::buildSource(NoiseMap *map)
 		
 		for (unsigned a = 0; a<attributes.size(); ++a)
 		{
-			Attribute &att = attributes[a];
-			auto amIt = attributeMap.find(att.getName());
-			
-			switch(att.getType())
-			{
-				case Attribute::FLOAT:
-					source<<"float "<<att.getName()<<" = floatAtt["<<amIt->second<<"];\n";
-					break;
-				case Attribute::INT:
-					source<<"int "<<att.getName()<<" = intAtt["<<amIt->second<<"];\n";
-					break;
-				default:
-					CL_THROW("Invalid attribute type");
-			}
+			Attribute *att = attributes[a];
+			auto amIt = attributeMap.find(att->getName());
+			source<<att->buildCode(amIt->second);
 		}
 	}
 	source<<kernelSource<<"}\n";

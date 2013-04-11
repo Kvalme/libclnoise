@@ -18,8 +18,10 @@
 */
 
 #include "clnoise/gradientattribute.h"
+#include "clnoise/error.h"
 
-CLNoise::GradientAttribute::GradientAttribute(const std::string &name)
+CLNoise::GradientAttribute::GradientAttribute(const std::string &name) :
+	Attribute()
 {
 	type = GRADIENT;
 }
@@ -31,6 +33,74 @@ void CLNoise::GradientAttribute::addPoint(float pos, CLNoise::GradientAttribute:
 	{
 		it->second = point;
 	}
-	
+
 	points.insert(std::make_pair(pos, point));
+}
+
+bool CLNoise::GradientAttribute::getPoint(int id, float *pos, CLNoise::GradientAttribute::GradientPoint *point) const
+{
+	auto it = points.begin();
+	for (int a = 0; a < id && it != points.end(); ++a, ++it);
+	if (it == points.end())return false;
+
+	*pos = it->first;
+	*point = it->second;
+	return true;
+}
+
+int CLNoise::GradientAttribute::getPointCount() const
+{
+	return points.size();
+}
+
+void CLNoise::GradientAttribute::updateValue(unsigned int pos, float *floatAtt, int *intAtt, unsigned int floatAttSize, unsigned int intAttSize) const
+{
+	unsigned int maxPos = pos + MAX_POINTS_PER_GRADIENT * 5 + 1; //POS, R, G, B, A
+	if (maxPos >= floatAttSize) CL_THROW("Position for GradientAttribute is out of bounds");
+	if (points.size() > MAX_POINTS_PER_GRADIENT) CL_THROW("Too many points in gradient");
+
+	floatAtt[pos++] = points.size();
+	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
+	{
+		floatAtt[pos] = it->first;
+	}
+
+	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
+	{
+		floatAtt[pos] = it->second.r;
+	}
+	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
+	{
+		floatAtt[pos] = it->second.g;
+	}
+	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
+	{
+		floatAtt[pos] = it->second.b;
+	}
+	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
+	{
+		floatAtt[pos] = it->second.a;
+	}
+
+}
+
+std::string CLNoise::GradientAttribute::buildCode(int position) const
+{
+	char buf[2048];
+
+
+	snprintf(buf, 2048, "int GRAD_POINT_COUNT = floatAtt[%d];\n"
+	         "__global __read_only float *GRAD_POINT = floatAtt+%d;\n"
+		 "__global __read_only float *GRAD_POINT_COLOR_R = floatAtt+%lu;\n"
+		 "__global __read_only float *GRAD_POINT_COLOR_G = floatAtt+%lu;\n"
+		 "__global __read_only float *GRAD_POINT_COLOR_B = floatAtt+%lu;\n"
+		 "__global __read_only float *GRAD_POINT_COLOR_A = floatAtt+%lu;\n",
+	         position,
+	         position + 1,
+	         position + 1 + points.size(),
+	         position + 1 + points.size() + points.size(),
+	         position + 1 + points.size() + points.size() + points.size(),
+	         position + 1 + points.size() + points.size() + points.size() + points.size());
+	
+	return buf;
 }

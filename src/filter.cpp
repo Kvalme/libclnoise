@@ -74,9 +74,9 @@ void Filter::buildSource(NoiseMap *map)
 
 		for (unsigned a = 0; a < attributes.size(); ++a)
 		{
-			Attribute &att = attributes[a];
-			auto amIt = attributeMap.find(att.getName());
-			source<<att.buildCode(amIt->second);
+			Attribute *att = attributes[a];
+			auto amIt = attributeMap.find(att->getName());
+			source<<att->buildCode(amIt->second);
 		}
 	}
 	for (unsigned a = 0; a < inputs.size(); ++a)

@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 		Filter *filter = static_cast<Filter*>(noisecl.createModule("ABS", BaseModule::FILTER));
 		Output *output = static_cast<Output *>(noisecl.createModule("PlaneMap", BaseModule::OUTPUT));
 		Filter *csc = static_cast<Filter*>(noisecl.createModule("gradient", BaseModule::FILTER));
+//		Filter *csc = static_cast<Filter*>(noisecl.createModule("grayscale", BaseModule::FILTER));
 		if (!source) CL_THROW("Unable to create \"Perlin\" module");
 		if (!output) CL_THROW("Unable to create \"PlaneMap\" module");
 

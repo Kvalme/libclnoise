@@ -13,8 +13,8 @@
     int index0 = clamp(index - 1, 0, GRAD_POINT_COUNT - 1);
     int index1 = clamp(index, 0, GRAD_POINT_COUNT - 1);
     
-    float4 color0(GRAD_POINT_COLOR_R[index0], GRAD_POINT_COLOR_G[index0], GRAD_POINT_COLOR_B[index0], GRAD_POINT_COLOR_A[index0]);
-    float4 color1(GRAD_POINT_COLOR_R[index1], GRAD_POINT_COLOR_G[index1], GRAD_POINT_COLOR_B[index1], GRAD_POINT_COLOR_A[index1]);
+    float4 color0 = (float4)(GRAD_POINT_COLOR_R[index0], GRAD_POINT_COLOR_G[index0], GRAD_POINT_COLOR_B[index0], GRAD_POINT_COLOR_A[index0]);
+    float4 color1 = (float4)(GRAD_POINT_COLOR_R[index1], GRAD_POINT_COLOR_G[index1], GRAD_POINT_COLOR_B[index1], GRAD_POINT_COLOR_A[index1]);
 
     float point0 = GRAD_POINT[index0];
     float point1 = GRAD_POINT[index1];

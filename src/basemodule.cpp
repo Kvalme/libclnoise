@@ -20,7 +20,8 @@
 
 #include "clnoise/basemodule.h"
 #include "clnoise/error.h"
-#include "noisemap.h"
+#include "clnoise/noisemap.h"
+#include "clnoise/gradientattribute.h"
 
 using namespace CLNoise;
 
@@ -43,7 +44,7 @@ void BaseModule::addDependency(const char *dep)
 	dependencies.push_back(dep);
 }
 
-const std::vector<std::string>& BaseModule::getDependencyList() const
+const std::vector<std::string> &BaseModule::getDependencyList() const
 {
 	return dependencies;
 }
@@ -51,7 +52,7 @@ const std::vector<std::string>& BaseModule::getDependencyList() const
 Attribute BaseModule::getAttribute(unsigned int attributeId) const
 {
 	if (attributeId >= attributes.size()) CL_THROW("Requested information for not existed attribute");
-	return attributes[attributeId];
+	return *attributes[attributeId];
 }
 
 unsigned int BaseModule::getAttributeCount() const
@@ -59,7 +60,7 @@ unsigned int BaseModule::getAttributeCount() const
 	return attributes.size();
 }
 
-const std::vector< Attribute >& BaseModule::getAttributes() const
+const std::vector< Attribute * > &BaseModule::getAttributes()
 {
 	return attributes;
 }
@@ -75,7 +76,7 @@ unsigned int BaseModule::getInputCount() const
 	return inputs.size();
 }
 
-const std::vector< BaseModule::ContactInfo >& BaseModule::getInputs() const
+const std::vector< BaseModule::ContactInfo > &BaseModule::getInputs() const
 {
 	return inputs;
 }
@@ -98,32 +99,30 @@ void BaseModule::setModuleSource(const char *source)
 void BaseModule::setAttribute(const Attribute &attribute)
 {
 	bool isFound = false;
-	for (Attribute & att : attributes)
+	for (unsigned int a = 0 ; a < attributes.size(); ++a)
 	{
-		if (att.getName() == attribute.getName())
+		Attribute *att = attributes[a];
+		if (att->getName() == attribute.getName())
 		{
-			if (attribute.getType() == Attribute::INT)
-				att.setValue(attribute.getInt());
-			else
-				att.setValue(attribute.getFloat());
-			isFound = true;
-			break;
+			delete attributes[a];
+			attributes[a] = createAttribute(attribute);
+			return;
 		}
 	}
-	if (!isFound)
-		attributes.push_back(attribute);
+	if (!isFound) attributes.push_back(createAttribute(attribute));
 }
 
 void BaseModule::setAttribute(unsigned int id, const Attribute &attribute)
 {
 	if (id < attributes.size())
 	{
-		attributes[id] = attribute;
+		delete attributes[id];
+		attributes[id] = createAttribute(attribute);
 	}
 	else
 	{
 		attributes.resize(id + 1);
-		attributes[id] = attribute;
+		attributes[id] = createAttribute(attribute);
 	}
 }
 
@@ -160,14 +159,14 @@ void BaseModule::build(NoiseMap *map)
 	{
 		map->addDependency(dependencies[a]);
 	}
-	
+
 	for (unsigned a = 0; a < inputs.size(); ++a)
 	{
 		ContactInfo ci = inputs[a];
-		if ( ci.input == nullptr ) CL_THROW(std::string("NULL passed as input to module: ") + moduleName);
+		if (ci.input == nullptr) CL_THROW(std::string("NULL passed as input to module: ") + moduleName);
 		ci.input->build(map);
 	}
-	
+
 	//Generate header
 	buildHeader(map);
 	buildSource(map);
@@ -178,3 +177,18 @@ std::string BaseModule::getModuleCallName() const
 	return moduleName;
 }
 
+Attribute *BaseModule::createAttribute(const Attribute &attribute)
+{
+	switch (attribute.getType())
+	{
+		case Attribute::INT:
+		case Attribute::FLOAT:
+			return new Attribute(attribute);
+		case Attribute::GRADIENT:
+			return new GradientAttribute(static_cast<const GradientAttribute&>(attribute));
+		case Attribute::INVALID:
+			CL_THROW("Invalid attribute passed");
+			return nullptr;
+	}
+	return nullptr;
+}

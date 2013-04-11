@@ -24,6 +24,7 @@
 #include "clnoise/output.h"
 #include "clnoise/function.h"
 #include "clnoise/noisemap.h"
+#include "clnoise/error.h"
 
 #include "library.h"
 
