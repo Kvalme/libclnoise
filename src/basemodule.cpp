@@ -192,3 +192,13 @@ Attribute *BaseModule::createAttribute(const Attribute &attribute)
 	}
 	return nullptr;
 }
+
+Attribute BaseModule::getAttribute(const std::string &attributeName) const
+{
+	for (auto att : attributes)
+	{
+		if (att->getName() == attributeName) return *att;
+	}
+	CL_THROW("Invalid attribute requested");
+	return Attribute();
+}

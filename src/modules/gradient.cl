@@ -19,7 +19,7 @@
     float point0 = GRAD_POINT[index0];
     float point1 = GRAD_POINT[index1];
     
-    float alpha = (gradientPos - point0) / (point1 - point0);
+    float alpha = clamp((gradientPos - point0) / (point1 - point0), 0.0f, 1.0f);
 
     uint4 color;
     color.x = (color1.x * alpha + (color0.x * (1.0f - alpha))) * 255.0f;

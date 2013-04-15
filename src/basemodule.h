@@ -113,6 +113,13 @@ public:
 	 * @return information about requested attribute
 	 */
 	virtual Attribute getAttribute(unsigned int attributeId) const;
+	
+	/**
+	 * Return requested attribute using linear search
+	 * @param attributeName name of the requested attribute
+	 * @return requested attribute
+	 */
+	virtual Attribute getAttribute(const std::string &attributeName) const;
 
 	/**
 	 * Return set of attributes for module.

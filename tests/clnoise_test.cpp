@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
 		gradAtt.addPoint( 0.50f, GradientAttribute::GradientPoint(0.62, 0.37, 0.25, 1.00));
 		gradAtt.addPoint( 0.75f, GradientAttribute::GradientPoint(0.50, 1.00, 1.00, 1.00));
 		gradAtt.addPoint( 1.00f, GradientAttribute::GradientPoint(1.00, 1.00, 1.00, 1.00));
+/*		gradAtt.addPoint(-1.00f, GradientAttribute::GradientPoint(1.00, 0.00, 0.00, 1.00));
+		gradAtt.addPoint( 1.00f, GradientAttribute::GradientPoint(1.00, 0.00, 0.00, 1.00));*/
 		
 		csc->setAttribute(gradAtt);
 		

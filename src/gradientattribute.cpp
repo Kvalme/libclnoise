@@ -23,6 +23,7 @@
 CLNoise::GradientAttribute::GradientAttribute(const std::string &name) :
 	Attribute()
 {
+	attributeName = name;
 	type = GRADIENT;
 }
 
@@ -64,19 +65,22 @@ void CLNoise::GradientAttribute::updateValue(unsigned int pos, float *floatAtt, 
 	{
 		floatAtt[pos] = it->first;
 	}
-
+	pos += MAX_POINTS_PER_GRADIENT - points.size();
 	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
 	{
 		floatAtt[pos] = it->second.r;
 	}
+	pos += MAX_POINTS_PER_GRADIENT - points.size();
 	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
 	{
 		floatAtt[pos] = it->second.g;
 	}
+	pos += MAX_POINTS_PER_GRADIENT - points.size();
 	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
 	{
 		floatAtt[pos] = it->second.b;
 	}
+	pos += MAX_POINTS_PER_GRADIENT - points.size();
 	for (auto it = points.begin(); it != points.end(); ++it, pos ++)
 	{
 		floatAtt[pos] = it->second.a;
@@ -91,16 +95,16 @@ std::string CLNoise::GradientAttribute::buildCode(int position) const
 
 	snprintf(buf, 2048, "int GRAD_POINT_COUNT = floatAtt[%d];\n"
 	         "__global __read_only float *GRAD_POINT = floatAtt+%d;\n"
-		 "__global __read_only float *GRAD_POINT_COLOR_R = floatAtt+%lu;\n"
-		 "__global __read_only float *GRAD_POINT_COLOR_G = floatAtt+%lu;\n"
-		 "__global __read_only float *GRAD_POINT_COLOR_B = floatAtt+%lu;\n"
-		 "__global __read_only float *GRAD_POINT_COLOR_A = floatAtt+%lu;\n",
+	         "__global __read_only float *GRAD_POINT_COLOR_R = floatAtt+%d;\n"
+	         "__global __read_only float *GRAD_POINT_COLOR_G = floatAtt+%d;\n"
+	         "__global __read_only float *GRAD_POINT_COLOR_B = floatAtt+%d;\n"
+	         "__global __read_only float *GRAD_POINT_COLOR_A = floatAtt+%d;\n",
 	         position,
 	         position + 1,
-	         position + 1 + points.size(),
-	         position + 1 + points.size() + points.size(),
-	         position + 1 + points.size() + points.size() + points.size(),
-	         position + 1 + points.size() + points.size() + points.size() + points.size());
-	
-	return buf;
+	         position + 1 + MAX_POINTS_PER_GRADIENT,
+	         position + 1 + 2 * MAX_POINTS_PER_GRADIENT,
+	         position + 1 + 3 * MAX_POINTS_PER_GRADIENT,
+	         position + 1 + 4 * MAX_POINTS_PER_GRADIENT);
+
+	         return buf;
 }
